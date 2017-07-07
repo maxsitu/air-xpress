@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.server.Directives._
 import com.jc.account.common.Utils
 import com.jc.account.common.api.RoutesSupport
+import com.jc.account.user.application.UserRegisterResult.{InvalidData, UserExists}
 import com.jc.account.user.application.{Session, UserRegisterResult, UserService}
 import com.jc.account.user.domain.BasicUserData
 import com.softwaremill.session.SessionDirectives._
@@ -19,6 +20,8 @@ trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
   def userService: UserService
 
   implicit val basicUserDataCbs = CanBeSerialized[BasicUserData]
+  implicit val invalidDataCbs  = CanBeSerialized[InvalidData]
+  implicit val userExistsCbs  = CanBeSerialized[UserExists]
 
   val usersRoutes = pathPrefix("users") {
     path("logout") {
@@ -34,8 +37,8 @@ trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
         post {
           entity(as[RegistrationInput]) { in =>
             onSuccess(userService.registerNewUser(in.loginEscaped, in.email, in.password)) {
-              case UserRegisterResult.InvalidData(msg) => complete(StatusCodes.BadRequest, msg)
-              case UserRegisterResult.UserExists(msg)  => complete(StatusCodes.Conflict, msg)
+              case msg: UserRegisterResult.InvalidData => complete(StatusCodes.BadRequest, msg)
+              case msg: UserRegisterResult.UserExists  => complete(StatusCodes.Conflict, msg)
               case UserRegisterResult.Success          => complete("success")
             }
           }

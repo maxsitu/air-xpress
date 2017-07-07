@@ -23,4 +23,11 @@ trait CirceEncoders {
   implicit object ClientErrorEncoder extends Encoder[ClientError] {
     override def apply(a: ClientError): Json = a.defaultMessage.asJson
   }
+
+  implicit object StringOptionEncoder extends Encoder[Option[String]] {
+    override def apply(a: Option[String]): Json = a match {
+      case Some(str) => Json.fromString(str)
+      case _ => Json.Null
+    }
+  }
 }
