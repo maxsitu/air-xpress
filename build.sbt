@@ -3,7 +3,7 @@ import java.util.Date
 
 import scala.util.Try
 
-name := """jt-account-service"""
+name := """jt-api-service"""
 
 version := "1.0"
 
@@ -70,7 +70,7 @@ libraryDependencies ++= Seq(
 ).map(_ % circeVersion)
 
 buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
-buildInfoPackage := "com.jc.account.version"
+buildInfoPackage := "com.jc.api.version"
 buildInfoObject := "BuildInfo"
 buildInfoKeys := Seq[BuildInfoKey](
   BuildInfoKey.action("buildDate")(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date())),
@@ -78,7 +78,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   BuildInfoKey.action("buildSha")(Try(Process("git rev-parse HEAD").!!.stripLineEnd).getOrElse("?"))
 )
 
-mainClass in Compile := Some("com.jc.account.Main")
+mainClass in Compile := Some("com.jc.api.Main")
 
 Revolver.settings
 RenameProject.settings

@@ -35,7 +35,7 @@
         <appender-ref ref="ASYNC" />
     </logger>
 
-    <logger name="com.jc.account" level="DEBUG" additivity="false">
+    <logger name="com.jc.api" level="DEBUG" additivity="false">
         <appender-ref ref="ASYNC" />
     </logger>
 
