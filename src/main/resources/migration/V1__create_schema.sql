@@ -58,8 +58,22 @@ CREATE TABLE "locations" (
   "geo_lat"  DOUBLE PRECISION NOT NULL,
   "geo_lon"  DOUBLE PRECISION NOT NULL
 );
-
 ALTER TABLE "locations" ADD CONSTRAINT "locations_id" PRIMARY KEY ("id");
 CREATE UNIQUE INDEX "location_code_idx" ON "locations"("code");
 CREATE INDEX "location_name_idx" ON "locations"("name");
 
+CREATE TABLE "planes" (
+  "id"                SERIAL,
+  "n_no"              VARCHAR NOT NULL,
+  "manufacturer_name" VARCHAR NOT NULL,
+  "serial_no"         VARCHAR NOT NULL,
+  "model"             VARCHAR NOT NULL,
+  "owner_id"          UUID REFERENCES "users" ("id") NOT NULL,
+  "pilot_seats"       INT     NOT NULL,
+  "min_pilot"         INT     NOT NULL,
+  "customer_seats"    INT     NOT NULL
+);
+ALTER TABLE "planes" ADD CONSTRAINT "planes_id" PRIMARY KEY ("id");
+CREATE UNIQUE INDEX "plane_n_no_idx" ON "plane" ("n_no");
+CREATE UNIQUE INDEX "plane_serial_idx" ON "plane" ("serial_no");
+CREATE INDEX "plane_manufacturer_name_idx" ON "plane" ("manufacturer_name");

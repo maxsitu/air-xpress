@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import com.jc.api.common.sql.{DatabaseConfig, SqlDatabase}
 import com.jc.api.location.application.{LocationDao, LocationService}
 import com.jc.api.order.application.{OrderDao, OrderService}
+import com.jc.api.plane.application.{PlaneDao, PlaneService}
 import com.jc.api.user.application.{RefreshTokenStorageImpl, RememberMeTokenDao, UserDao, UserService}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
@@ -19,11 +20,13 @@ trait DependencyWiring extends StrictLogging {
 
   lazy val daoExecutionContext = system.dispatchers.lookup("dao-dispatcher")
 
-  lazy val userDao = new UserDao(sqlDatabase)(daoExecutionContext)
+  lazy val userDao  = new UserDao(sqlDatabase)(daoExecutionContext)
 
   lazy val orderDao = new OrderDao(sqlDatabase)(daoExecutionContext)
 
-  lazy val locationDao = new LocationDao(sqlDatabase)(daoExecutionContext)
+  lazy val locationDao  = new LocationDao(sqlDatabase)(daoExecutionContext)
+
+  lazy val planeDao     = new PlaneDao(sqlDatabase)(daoExecutionContext)
 
   lazy val rememberMeTokenDao = new RememberMeTokenDao(sqlDatabase)(daoExecutionContext)
 
@@ -41,6 +44,11 @@ trait DependencyWiring extends StrictLogging {
   lazy val locationService = new LocationService(
     locationDao
   )(serviceExecutionContext)
+
+  lazy val planeService = new PlaneService(
+    planeDao
+  )(serviceExecutionContext)
+
 
   lazy val refreshTokenStorage = new RefreshTokenStorageImpl(rememberMeTokenDao, system)(serviceExecutionContext)
 }
