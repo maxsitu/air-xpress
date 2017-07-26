@@ -61,7 +61,7 @@ libraryDependencies ++= unitTestingStack ++ loggingStack ++ akkaStack ++ slickSt
   "org.mindrot"         %   "jbcrypt"        % "0.3m"
 )
 
-val circeVersion = "0.7.0"
+val circeVersion = "0.8.0"
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",

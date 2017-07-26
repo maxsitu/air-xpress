@@ -74,6 +74,6 @@ CREATE TABLE "planes" (
   "customer_seats"    INT     NOT NULL
 );
 ALTER TABLE "planes" ADD CONSTRAINT "planes_id" PRIMARY KEY ("id");
-CREATE UNIQUE INDEX "plane_n_no_idx" ON "plane" ("n_no");
-CREATE UNIQUE INDEX "plane_serial_idx" ON "plane" ("serial_no");
-CREATE INDEX "plane_manufacturer_name_idx" ON "plane" ("manufacturer_name");
+CREATE UNIQUE INDEX "planes_n_no_idx" ON "planes" ("n_no");
+CREATE UNIQUE INDEX "planes_serial_idx" ON "planes" ("serial_no");
+CREATE INDEX "planes_manufacturer_name_idx" ON "planes" ("manufacturer_name");

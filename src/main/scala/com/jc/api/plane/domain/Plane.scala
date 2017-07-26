@@ -14,3 +14,27 @@ case class Plane (
   minimumPilotNum: Int,
   customerSeats: Int
 )
+
+case class BasicPlaneData(
+                           nNum:             String,
+                           manufacturerName: String,
+                           sn:               String,
+                           model:            String,
+                           pilotSeats:       Int,
+                           pilotMinReq:      Int,
+                           customerSeats:    Int
+                         ) {
+  def asPlane(ownerId: UserId) = Plane(Some(0), nNum, manufacturerName, sn, model, ownerId, pilotSeats, pilotMinReq, customerSeats)
+}
+
+object BasicPlaneData {
+  def fromPlane(plane: Plane) =
+    new BasicPlaneData(
+      plane.nNum,
+      plane.manufacturerName,
+      plane.sn,
+      plane.model,
+      plane.pilotSeats,
+      plane.minimumPilotNum,
+      plane.customerSeats)
+}

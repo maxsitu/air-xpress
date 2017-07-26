@@ -52,7 +52,7 @@ trait JsonSupport extends CirceEncodersDecoders {
   object CanBeSerialized {
     def apply[T]                                                                                        = new CanBeSerialized[T] {}
     implicit def listCanBeSerialized[T](implicit cbs: CanBeSerialized[T]): CanBeSerialized[List[T]]     = null
-    implicit def seqCanBeSerialized[T](implicit cbs: CanBeSerialized[T]): CanBeSerialized[Seq[T]]     = null
+    implicit def seqCanBeSerialized[T](implicit cbs: CanBeSerialized[T]): CanBeSerialized[Seq[T]]       = null
     implicit def setCanBeSerialized[T](implicit cbs: CanBeSerialized[T]): CanBeSerialized[Set[T]]       = null
     implicit def optionCanBeSerialized[T](implicit cbs: CanBeSerialized[T]): CanBeSerialized[Option[T]] = null
   }

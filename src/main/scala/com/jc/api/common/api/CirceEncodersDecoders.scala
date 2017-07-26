@@ -25,11 +25,6 @@ trait CirceEncodersDecoders {
     override def apply(a: ClientError): Json = a.defaultMessage.asJson
   }
 
-  implicit object UuidDecoder extends Decoder[UUID] {
-    override def apply(c: HCursor): Result[UUID] =
-      Right(UUID.fromString(c.top.get.noSpaces))
-  }
-
   implicit object DateTimeDecoder extends Decoder[OffsetDateTime] {
     override def apply(c: HCursor): Result[OffsetDateTime] =
       Right(OffsetDateTime.from(dateTimeFormat.parse(c.top.get.noSpaces)))

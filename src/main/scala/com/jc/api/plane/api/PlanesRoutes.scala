@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.http.scaladsl.server.Directives._
 import com.jc.api.common.api.RoutesSupport
 import com.jc.api.plane.application.PlaneService
-import com.jc.api.plane.domain.Plane
+import com.jc.api.plane.domain.{BasicPlaneData, Plane}
 import com.jc.api.user.UserId
 import com.jc.api.user.api.SessionSupport
 import io.circe.generic.auto._
@@ -19,12 +19,13 @@ trait PlanesRoutes extends RoutesSupport with StrictLogging with SessionSupport{
   def planeService: PlaneService
 
   implicit val planeDataCbs = CanBeSerialized[Plane]
+  implicit val basicPlaneDataCbs = CanBeSerialized[BasicPlaneData]
 
   val planesRoutes = pathPrefix("planes") {
     put {
-      userFromSession { _ =>
-        entity(as[PlaneInput]) { planeInput =>
-          onSuccess(planeService.add(planeInput.asPlane)) { _ =>
+      userIdFromSession{ userId =>
+        entity(as[BasicPlaneData]) { planeInput =>
+          onSuccess(planeService.add(planeInput.asPlane(userId))) { _ =>
             completeOk
           }
         }
@@ -35,7 +36,13 @@ trait PlanesRoutes extends RoutesSupport with StrictLogging with SessionSupport{
         parameters('offset.?, 'limit.?) { (offset, limit) =>
           val offsetVal = offset.map(_.toInt).getOrElse(0)
           val limitVal: Int  = limit.map(_.toInt).getOrElse(500)
-          completeOk
+          onSuccess(planeService.range(offsetVal, limitVal)) { planes =>
+            complete(
+              planes.map {
+                BasicPlaneData.fromPlane(_)
+              }
+            )
+          }
         }
       } ~
       path("ownerId" / JavaUUID) { ownerId =>
@@ -56,16 +63,5 @@ trait PlanesRoutes extends RoutesSupport with StrictLogging with SessionSupport{
   }
 }
 
-case class PlaneInput (
-  nNum:             String,
-  manufacturerName: String,
-  sn:               String,
-  model:            String,
-  ownerId:          UUID,
-  pilotSeats:       Int,
-  pilotMinReq:      Int,
-  customerSeats:    Int
-) {
-  def asPlane = Plane(Some(0), nNum, manufacturerName, sn, model, ownerId, pilotSeats, pilotMinReq, customerSeats)
-}
+
 
