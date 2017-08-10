@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 import com.jc.api.common.sql.SqlDatabase
+import com.jc.api.flight.FlightPlanId
 import com.jc.api.order.OrderId
 import com.jc.api.order.domain.Order
 
@@ -17,12 +18,6 @@ class OrderDao(protected val database: SqlDatabase)(implicit val ec: ExecutionCo
 
   def findById(orderId: OrderId): Future[Option[Order]] =
     db.run(orders.filter(_.id === orderId).result.headOption)
-
-  def findByRequestUserId(reqestUserId: UUID): Future[Seq[Order]] =
-    db.run(orders.filter(_.requestUserId === reqestUserId).result)
-
-  def findByAcceptUserId(acceptUserId: UUID): Future[Seq[Order]] =
-    db.run(orders.filter(_.acceptUserId === acceptUserId).result)
 }
 
 trait SqlOrderSchema {
@@ -34,15 +29,10 @@ trait SqlOrderSchema {
 
   protected class Orders(tag: Tag) extends Table[Order](tag, "orders") {
     def id              = column[Long]("id", O.PrimaryKey, O.AutoInc)
-    def requestUserId   = column[UUID]("request_user_id")
-    def acceptUserId    = column[UUID]("accept_user_id")
-    def eventStartsOn   = column[OffsetDateTime]("event_starts_on")
-    def eventEndsOn     = column[OffsetDateTime]("event_ends_on")
-    def fromLocationId  = column[Long]("from_location_id")
-    def toLocationId    = column[Long]("from_location_id")
-    def planId          = column[Long]("plan_id")
     def createdOn       = column[OffsetDateTime]("created_on")
+    def confirmedOn     = column[Option[OffsetDateTime]]("confirmed_on")
+    def rejectedOn      = column[Option[OffsetDateTime]]("rejected_on")
 
-    def * = (id.?, requestUserId, acceptUserId, eventStartsOn, eventEndsOn, fromLocationId, toLocationId, planId, createdOn) <> (Order.tupled, Order.unapply _)
+    def * = (id, createdOn, confirmedOn, rejectedOn) <> (Order.tupled, Order.unapply)
   }
 }

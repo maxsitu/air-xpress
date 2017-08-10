@@ -1,79 +1,124 @@
+
 -- USERS
-CREATE TABLE "users"(
-    "id"          UUID NOT NULL,
-    "login"       VARCHAR NOT NULL,
-    "login_lowercase" VARCHAR NOT NULL,
-    "email"       VARCHAR NOT NULL NOT NULL,
-    "password"    VARCHAR NOT NULL,
-    "salt"        VARCHAR NOT NULL,
-    "created_on"  TIMESTAMP NOT NULL
-);
-ALTER TABLE "users" ADD CONSTRAINT "users_id" PRIMARY KEY("id");
-
--- PASSWORD RESET CODES
-CREATE TABLE "password_reset_codes"(
-  "id"        UUID NOT NULL,
-  "code"      VARCHAR NOT NULL,
-  "user_id"   UUID NOT NULL,
-  "valid_to"  TIMESTAMP NOT NULL
-);
-ALTER TABLE "password_reset_codes" ADD CONSTRAINT "password_reset_codes_id" PRIMARY KEY("id");
-ALTER TABLE "password_reset_codes" ADD CONSTRAINT "password_reset_codes_user_fk"
-  FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- REMEMBER ME TOKENS
-CREATE TABLE "remember_me_tokens"(
-  "id"          UUID NOT NULL,
-  "selector"    VARCHAR NOT NULL,
-  "token_hash"  VARCHAR NOT NULL,
-  "user_id"     UUID NOT NULL,
-  "valid_to"    TIMESTAMP NOT NULL
-);
-ALTER TABLE "remember_me_tokens" ADD CONSTRAINT "remember_me_tokens_id" PRIMARY KEY("id");
-ALTER TABLE "remember_me_tokens" ADD CONSTRAINT "remember_me_tokens_user_fk"
-  FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-CREATE UNIQUE INDEX "remember_me_tokens_selector" ON "remember_me_tokens"("selector");
-
-CREATE TABLE "orders" (
-  "id"    SERIAL,
-  "request_user_id" UUID NOT NULL,
-  "accept_user_id"  UUID NOT NULL,
-  "event_starts_on" TIMESTAMP NOT NULL,
-  "event_ends_on"   TIMESTAMP NOT NULL,
-  "from_location_id"  INTEGER NOT NULL,
-  "to_location_id"  INTEGER NOT NULL,
-  "plan_id"         INTEGER,
+CREATE TABLE "users" (
+  "id"              UUID      NOT NULL PRIMARY KEY,
+  "login"           VARCHAR   NOT NULL,
+  "login_lowercase" VARCHAR   NOT NULL,
+  "email"           VARCHAR   NOT NULL NOT NULL,
+  "password"        VARCHAR   NOT NULL,
+  "salt"            VARCHAR   NOT NULL,
   "created_on"      TIMESTAMP NOT NULL
 );
+ALTER TABLE "users"
+  OWNER TO jc_acct;
 
-ALTER TABLE "orders" ADD CONSTRAINT "orders_id" PRIMARY KEY ("id");
-CREATE INDEX "request_user_id_idx" ON "orders"("request_user_id");
-CREATE INDEX "accept_user_id_idx" ON "orders"("accept_user_id");
+-- USER ROLES
+CREATE TABLE "user_roles" (
+  "id"              BIGSERIAL PRIMARY KEY,
+  "role"            VARCHAR NOT NULL UNIQUE
+);
+ALTER TABLE "user_roles"
+  OWNER TO jc_acct;
+
+
+CREATE TABLE "user_role_mappings" (
+  "user_id"         UUID  NOT NULL REFERENCES "users"(id),
+  "role_id"         INTEGER NOT NULL REFERENCES "user_roles"(id)
+);
+ALTER TABLE "user_role_mappings"
+  OWNER TO jc_acct;
+
+-- PASSWORD RESET CODES
+CREATE TABLE "password_reset_codes" (
+  "id"       UUID      NOT NULL PRIMARY KEY,
+  "code"     VARCHAR   NOT NULL,
+  "user_id"  UUID      NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  "valid_to" TIMESTAMP NOT NULL
+);
+ALTER TABLE "password_reset_codes"
+  OWNER TO jc_acct;
+
+-- REMEMBER ME TOKENS
+CREATE TABLE "remember_me_tokens" (
+  "id"         UUID      NOT NULL PRIMARY KEY,
+  "selector"   VARCHAR   NOT NULL UNIQUE,
+  "token_hash" VARCHAR   NOT NULL,
+  "user_id"    UUID      NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  "valid_to"   TIMESTAMP NOT NULL
+);
+ALTER TABLE "remember_me_tokens"
+  OWNER TO jc_acct;
+
+-- FLIGHT ORDERS
+CREATE TABLE "flight_orders" (
+  "id"                BIGSERIAL PRIMARY KEY,
+  "created_on"        TIMESTAMP NOT NULL,
+  "confirmed_on"      TIMESTAMP DEFAULT NULL,
+  "rejected_on"       TIMESTAMP DEFAULT NULL
+);
+CREATE INDEX "request_user_id_idx"
+  ON "flight_orders" ("request_user_id");
+CREATE INDEX "accept_user_id_idx"
+  ON "flight_orders" ("accept_user_id");
+ALTER TABLE "flight_orders"
+  OWNER TO jc_acct;
 
 
 CREATE TABLE "locations" (
-  "id"    SERIAL,
-  "code"  VARCHAR NOT NULL,
-  "name"  VARCHAR NOT NULL,
-  "geo_lat"  DOUBLE PRECISION NOT NULL,
-  "geo_lon"  DOUBLE PRECISION NOT NULL
+  "id"      BIGSERIAL  PRIMARY KEY,
+  "code"    VARCHAR          NOT NULL UNIQUE,
+  "name"    VARCHAR          NOT NULL,
+  "geo_lat" DOUBLE PRECISION NOT NULL,
+  "geo_lon" DOUBLE PRECISION NOT NULL
 );
-ALTER TABLE "locations" ADD CONSTRAINT "locations_id" PRIMARY KEY ("id");
-CREATE UNIQUE INDEX "location_code_idx" ON "locations"("code");
-CREATE INDEX "location_name_idx" ON "locations"("name");
+CREATE INDEX "location_name_idx"
+  ON "locations" ("name");
+ALTER TABLE "locations"
+    OWNER TO jc_acct;
 
 CREATE TABLE "planes" (
-  "id"                SERIAL,
-  "n_no"              VARCHAR NOT NULL,
-  "manufacturer_name" VARCHAR NOT NULL,
-  "serial_no"         VARCHAR NOT NULL,
-  "model"             VARCHAR NOT NULL,
+  "id"                BIGSERIAL  PRIMARY KEY,
+  "n_no"              VARCHAR                        NOT NULL UNIQUE,
+  "manufacturer_name" VARCHAR                        NOT NULL,
+  "serial_no"         VARCHAR                        NOT NULL UNIQUE,
+  "model"             VARCHAR                        NOT NULL,
   "owner_id"          UUID REFERENCES "users" ("id") NOT NULL,
-  "pilot_seats"       INT     NOT NULL,
-  "min_pilot"         INT     NOT NULL,
-  "customer_seats"    INT     NOT NULL
+  "pilot_seats"       INT                            NOT NULL,
+  "min_pilot"         INT                            NOT NULL,
+  "customer_seats"    INT                            NOT NULL
 );
-ALTER TABLE "planes" ADD CONSTRAINT "planes_id" PRIMARY KEY ("id");
-CREATE UNIQUE INDEX "planes_n_no_idx" ON "planes" ("n_no");
-CREATE UNIQUE INDEX "planes_serial_idx" ON "planes" ("serial_no");
-CREATE INDEX "planes_manufacturer_name_idx" ON "planes" ("manufacturer_name");
+CREATE INDEX "planes_manufacturer_name_idx"
+  ON "planes" ("manufacturer_name");
+ALTER TABLE "planes"
+  OWNER TO jc_acct;
+
+-- FLIGHT PLANS
+CREATE TABLE "flight_plans" (
+  "id"              BIGSERIAL  PRIMARY KEY,
+  "order_id"        BIGINT    REFERENCES flight_orders(id) DEFAULT NULL,
+  "provide_user_id"   UUID    NOT NULL REFERENCES users(id),
+  "consume_user_id"   UUID    NOT NULL REFERENCES users(id),
+  "initiate_user_id"  UUID    NOT NULL REFERENCES users(id),
+  "passenger_count" INTEGER NOT NULL,
+  "start_time"      TIMESTAMP,
+  "end_time"        TIMESTAMP,
+  "created_on"      TIMESTAMP NOT NULL,
+  "modified_on"     TIMESTAMP NOT NULL
+);
+ALTER TABLE "flight_plans"
+  OWNER TO jc_acct;
+
+-- FLIGHT STEPS
+CREATE TABLE "flight_steps" (
+  "id"                BIGSERIAL PRIMARY KEY,
+  "plan_id"           INTEGER NOT NULL REFERENCES flight_plans(id)
+                      ON DELETE CASCADE ON UPDATE CASCADE,
+  "from_location_id"  INTEGER NOT NULL REFERENCES locations(id)
+                      ON DELETE CASCADE ON UPDATE CASCADE,
+  "to_location_id"    INTEGER NOT NULL REFERENCES locations(id)
+                      ON DELETE CASCADE ON UPDATE CASCADE,
+  "from_time"         TIMESTAMP NOT NULL,
+  "to_time"           TIMESTAMP NOT NULL
+);
+ALTER TABLE "flight_steps"
+  OWNER TO jc_acct;

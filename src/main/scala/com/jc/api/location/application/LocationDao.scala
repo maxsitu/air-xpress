@@ -33,7 +33,6 @@ class LocationDao (protected val database: SqlDatabase)(implicit val ec: Executi
 trait SqlLocationSchema {
   protected val database: SqlDatabase
 
-  import database._
   import database.driver.api._
 
   protected val locations = TableQuery[Locations]
