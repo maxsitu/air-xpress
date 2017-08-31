@@ -1,0 +1,1 @@
+INSERT INTO user_roles (role) VALUES ('CONSUMER'), ('PILOT'), ('PROVIDER'), ('ADMIN');

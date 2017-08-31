@@ -17,7 +17,7 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
   implicit val locationDataCbs = CanBeSerialized[Location]
   implicit val locationInvalidDataCbs = CanBeSerialized[InvalidData]
 
-  val locationRoutes = pathPrefix("locations") {
+  val locationRoutes = pathPrefix("location") {
     put {
       entity(as[LocationInput]) { loc =>
         onSuccess(locationService.addLocation(loc.code, loc.name, loc.geoLat, loc.geoLon)) {

@@ -49,19 +49,23 @@ CREATE TABLE "remember_me_tokens" (
 ALTER TABLE "remember_me_tokens"
   OWNER TO jc_acct;
 
--- FLIGHT ORDERS
-CREATE TABLE "flight_orders" (
-  "id"                BIGSERIAL PRIMARY KEY,
-  "created_on"        TIMESTAMP NOT NULL,
-  "confirmed_on"      TIMESTAMP DEFAULT NULL,
-  "rejected_on"       TIMESTAMP DEFAULT NULL
+CREATE TABLE "PILOT" (
+  "id"      BIGSERIAL PRIMARY KEY,
+  "user_id" UUID NOT NULL REFERENCES users(id),
+  "lincence_num" VARCHAR NOT NULL
 );
-CREATE INDEX "request_user_id_idx"
-  ON "flight_orders" ("request_user_id");
-CREATE INDEX "accept_user_id_idx"
-  ON "flight_orders" ("accept_user_id");
-ALTER TABLE "flight_orders"
-  OWNER TO jc_acct;
+
+CREATE TABLE "PLANE_PROVIDER" (
+  "id"      BIGSERIAL PRIMARY KEY,
+  "user_id" UUID NOT NULL REFERENCES users(id),
+  "name"    VARCHAR NOT NULL,
+  "lincence_num" VARCHAR NOT NULL
+);
+
+CREATE TABLE "PLANE_PROVIDER_MAPPING" (
+  "provider_id" INTEGER NOT NULL,
+  "plane_id"    INTEGER NOT NULL REFERENCES planes(id)
+);
 
 
 CREATE TABLE "locations" (
@@ -95,11 +99,8 @@ ALTER TABLE "planes"
 -- FLIGHT PLANS
 CREATE TABLE "flight_plans" (
   "id"              BIGSERIAL  PRIMARY KEY,
-  "order_id"        BIGINT    REFERENCES flight_orders(id) DEFAULT NULL,
-  "provide_user_id"   UUID    NOT NULL REFERENCES users(id),
-  "consume_user_id"   UUID    NOT NULL REFERENCES users(id),
-  "initiate_user_id"  UUID    NOT NULL REFERENCES users(id),
-  "passenger_count" INTEGER NOT NULL,
+  "owner_id"        UUID     REFERENCES users(id),
+  "description"     VARCHAR,
   "start_time"      TIMESTAMP,
   "end_time"        TIMESTAMP,
   "created_on"      TIMESTAMP NOT NULL,
@@ -122,3 +123,54 @@ CREATE TABLE "flight_steps" (
 );
 ALTER TABLE "flight_steps"
   OWNER TO jc_acct;
+
+-- Ask from Consumer
+CREATE TABLE consumer_ask (
+  "id"            BIGSERIAL PRIMARY KEY,
+  "plan_id"       INTEGER REFERENCES flight_plans(id),
+  "consumer_id"   UUID NOT NULL REFERENCES users(id),
+  "passengers"    INT NOT NULL,
+  "active"        BOOLEAN DEFAULT TRUE,
+  "asked_on"      TIMESTAMP NOT NULL,
+  "modified_on"   TIMESTAMP NOT NULL
+);
+ALTER TABLE "consumer_ask"
+    OWNER TO jc_acct;
+
+-- Ask from Provider
+CREATE TABLE provider_ask (
+  "id"            BIGSERIAL PRIMARY KEY,
+  "plan_id"       INTEGER REFERENCES flight_plans(id),
+  "provider_id"   UUID NOT NULL REFERENCES users(id),
+  "seats"         INT NOT NULL,
+  "price"         FLOAT NOT NULL,
+  "active"        BOOLEAN DEFAULT TRUE,
+  "created_on"    TIMESTAMP NOT NULL,
+  "modified_on"   TIMESTAMP NOT NULL
+);
+ALTER TABLE "provider_ask"
+    OWNER TO jc_acct;
+
+-- Bid for provider ask
+CREATE TABLE consumer_bid (
+  "provider_ask_id" INTEGER NOT NULL REFERENCES provider_ask(id),
+  "bidder_id"       UUID NOT NULL REFERENCES users(id),
+  "active"          BOOLEAN DEFAULT TRUE,
+  "confirmed"       BOOLEAN DEFAULT FALSE,
+  "created_on"      TIMESTAMP NOT NULL,
+  "modified_on"     TIMESTAMP NOT NULL
+);
+ALTER TABLE consumer_bid
+    OWNER TO jc_acct;
+
+-- Bid for consumer ask
+CREATE TABLE provider_bid (
+  "consumer_ask_id" INTEGER NOT NULL REFERENCES provider_ask(id),
+  "bidder_id"       UUID NOT NULL REFERENCES users(id),
+  "active"          BOOLEAN DEFAULT TRUE,
+  "confirmed"       BOOLEAN DEFAULT FALSE,
+  "created_on"      TIMESTAMP NOT NULL,
+  "modified_on"     TIMESTAMP NOT NULL
+);
+ALTER TABLE provider_ask
+    OWNER TO jc_acct;

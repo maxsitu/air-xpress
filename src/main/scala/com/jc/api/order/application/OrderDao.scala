@@ -5,6 +5,7 @@ import java.util.UUID
 
 import com.jc.api.common.sql.SqlDatabase
 import com.jc.api.flight.FlightPlanId
+import com.jc.api.location.application.LocationDao
 import com.jc.api.order.OrderId
 import com.jc.api.order.domain.Order
 
