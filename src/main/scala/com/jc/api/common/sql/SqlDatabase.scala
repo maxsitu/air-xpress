@@ -12,12 +12,12 @@ import slick.jdbc.JdbcProfile
 import slick.jdbc.JdbcBackend._
 
 case class SqlDatabase(
-    db: slick.jdbc.JdbcBackend.Database,
-    driver: JdbcProfile,
+    db              : slick.jdbc.JdbcBackend.Database,
+    profile         : JdbcProfile,
     connectionString: JdbcConnectionString
 ) {
 
-  import driver.api._
+  import profile.api._
 
   implicit val offsetDateTimeColumnType = MappedColumnType.base[OffsetDateTime, java.sql.Timestamp](
     dt => new java.sql.Timestamp(dt.toInstant.toEpochMilli),
@@ -26,6 +26,7 @@ case class SqlDatabase(
 
   def updateSchema() {
     val flyway = new Flyway()
+    flyway.setLocations("migration")
     flyway.setDataSource(connectionString.url, connectionString.username, connectionString.password)
     flyway.migrate()
   }

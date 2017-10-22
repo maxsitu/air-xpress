@@ -8,7 +8,7 @@ trait DatabaseConfig extends ConfigWithDefault {
   def rootConfig: Config
 
   // format: OFF
-  lazy val dbH2Url              = getString(s"jc.account.db.h2.properties.url", "jdbc:h2:file:./data/jc.account")
+  lazy val dbH2Url              = getString(H2DbUrlKey, "jdbc:h2:file:./data/jc.account")
   lazy val dbPostgresServerName = getString(PostgresServerNameKey, "")
   lazy val dbPostgresPort       = getString(PostgresPortKey, "5432")
   lazy val dbPostgresDbName     = getString(PostgresDbNameKey, "")
@@ -17,6 +17,7 @@ trait DatabaseConfig extends ConfigWithDefault {
 }
 
 object DatabaseConfig {
+  val H2DbUrlKey            = "jc.account.db.h2.properties.url"
   val PostgresDSClass       = "jc.account.db.postgres.dataSourceClass"
   val PostgresServerNameKey = "jc.account.db.postgres.properties.serverName"
   val PostgresPortKey       = "jc.account.db.postgres.properties.portNumber"

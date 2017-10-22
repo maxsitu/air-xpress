@@ -1,10 +1,11 @@
 package com.jc.api.common
 
+import java.time.{Instant, ZoneOffset}
 import java.util.Random
 
 object Utils {
 
-  def randomString(length: Int) = {
+  def randomString(length: Int): String = {
     val sb = new StringBuffer()
     val r  = new Random()
 
@@ -96,4 +97,6 @@ object Utils {
       }
       equal == 0
     }
+
+  def now() = Instant.now().atOffset(ZoneOffset.UTC)
 }

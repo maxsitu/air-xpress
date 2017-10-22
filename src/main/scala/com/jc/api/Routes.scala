@@ -3,17 +3,19 @@ package com.jc.api
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import com.jc.api.common.api.RoutesRequestWrapper
-import com.jc.api.location.api.LocationRoutes
-import com.jc.api.order.api.OrdersRoutes
-import com.jc.api.plane.api.PlanesRoutes
-import com.jc.api.swagger.SwaggerDocService
-import com.jc.api.user.api.UsersRoutes
+import com.jc.api.endpoint.bid.api.BidsRoutes
+import com.jc.api.endpoint.location.api.LocationRoutes
+import com.jc.api.endpoint.order.api.OrdersRoutes
+import com.jc.api.endpoint.plane.api.PlanesRoutes
+import com.jc.api.endpoint.swagger.SwaggerDocService
+import com.jc.api.endpoint.user.api.UsersRoutes
 
 trait Routes extends RoutesRequestWrapper
   with UsersRoutes
   with OrdersRoutes
   with LocationRoutes
-  with PlanesRoutes {
+  with PlanesRoutes
+  with BidsRoutes{
 
   def system: ActorSystem
   def config: ServerConfig
@@ -23,7 +25,8 @@ trait Routes extends RoutesRequestWrapper
         usersRoutes ~
         ordersRoutes ~
         locationRoutes ~
-        planesRoutes
+        planesRoutes ~
+        bidsRoutes
     } ~
       getFromResourceDirectory("webapp") ~
       new SwaggerDocService(config.serverHost, config.serverPort, system).routes ~

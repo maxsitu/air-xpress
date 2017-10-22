@@ -9,6 +9,8 @@ import io.circe.Decoder.Result
 import io.circe._
 import io.circe.syntax._
 
+import scala.util.Try
+
 trait CirceEncodersDecoders {
 
   val dateTimeFormat = DateTimeFormatter.ISO_DATE_TIME
@@ -28,5 +30,10 @@ trait CirceEncodersDecoders {
   implicit object DateTimeDecoder extends Decoder[OffsetDateTime] {
     override def apply(c: HCursor): Result[OffsetDateTime] =
       Right(OffsetDateTime.from(dateTimeFormat.parse(c.top.get.noSpaces)))
+  }
+
+  implicit object BooleanOptionDecoder extends Decoder[Option[Boolean]] {
+    override def apply(c: HCursor): Result[Option[Boolean]] =
+      Right(Try(c.top.get.noSpaces.toBoolean).map(Some(_)).getOrElse(Some(false)))
   }
 }
