@@ -7,8 +7,6 @@ import com.jc.api.endpoint.bid.BidId
 import com.jc.api.endpoint.user.UserId
 import com.jc.api.model.{ConsumerBid, ProviderAsk, ProviderBid}
 import com.jc.api.schema.SqlAccountServiceSchema
-import slick.jdbc
-import slick.jdbc.TransactionIsolation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,6 +31,16 @@ class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
 
   def findProviderBidsByConsumerAskId(consumerAskId: AskId): Future[Seq[ProviderBid]] = findProviderBidWhere(_.consumerAskId === consumerAskId)
   def findConsumerBidsByProviderAskId(providerAskId: AskId): Future[Seq[ConsumerBid]] = findConsumerBidWhere(_.providerAskId === providerAskId)
+
+  def findUnconfirmedProviderBidsByConsumerAskId(consumerAskId: AskId): Future[Seq[ProviderBid]] =
+    findProviderBidWhere(bid => bid.consumerAskId === consumerAskId && (bid.confirmed.isEmpty || bid.confirmed.get === false))
+  def findUnconfirmedConsumerBidsByProviderAskId(providerAskId: AskId): Future[Seq[ConsumerBid]] =
+    findConsumerBidWhere(bid => bid.providerAskId === providerAskId && (bid.confirmed.isEmpty || bid.confirmed.get === false))
+
+  def findConfirmedProviderBidsByConsumerAskId(consumerAskId: AskId): Future[Seq[ProviderBid]] =
+    findProviderBidWhere(bid => bid.consumerAskId === consumerAskId && bid.confirmed.isDefined && bid.confirmed.get === false)
+  def findConfirmedConsumerBidsByProviderAskId(providerAskId: AskId): Future[Seq[ConsumerBid]] =
+    findConsumerBidWhere(bid => bid.providerAskId === providerAskId && bid.confirmed.isDefined && bid.confirmed.get === false)
 
   def setProviderBidStatus(bidId: BidId, isActive: Boolean): Future[Unit] =
     db.run(providerAsks.filter(_.id === bidId).map(b => (b.active, b.modifiedOn)).update((Some(isActive), Utils.now()))).map(_ => ())
@@ -68,7 +76,7 @@ class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
   }
 
   def countConfirmedPassengersByProviderAskId(askId: AskId): Future[Int] = {
-    val query = consumerBids.filter(_.confirmed === true).filter(_.providerAskId === askId).map(_.passengers).sum
+    val query = consumerBids.filter(bid => bid.confirmed.isDefined && bid.confirmed.get === true).filter(_.providerAskId === askId).map(_.passengers).sum
 
     db.run(query.result).map(cntOpt => cntOpt.getOrElse(0))
   }

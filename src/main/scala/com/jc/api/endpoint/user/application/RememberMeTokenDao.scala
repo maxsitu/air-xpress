@@ -2,18 +2,18 @@ package com.jc.api.endpoint.user.application
 
 import com.jc.api.common.sql.SqlDatabase
 import com.jc.api.model.RememberMeToken
-import com.jc.api.schema.SqlRememberMeSchema
+import com.jc.api.schema.{SqlAccountServiceSchema}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class RememberMeTokenDao(protected val database: SqlDatabase)(implicit ec: ExecutionContext)
-    extends SqlRememberMeSchema {
+    extends SqlAccountServiceSchema {
 
   import database._
   import database.profile.api._
 
   def findBySelector(selector: String): Future[Option[RememberMeToken]] =
-    db.run(rememberMeTokens.filter(_.selector === selector).result).map(_.headOption)
+    db.run(rememberMeTokens.filter(_.selector === selector).result.headOption)
 
   def add(data: RememberMeToken): Future[Unit] =
     db.run(rememberMeTokens += data).map(_ => ())

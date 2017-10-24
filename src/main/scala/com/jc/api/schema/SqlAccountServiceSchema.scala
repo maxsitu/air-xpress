@@ -517,23 +517,18 @@ trait SqlAccountServiceSchema {
   /** Collection-like TableQuery object for table ProviderBids */
   lazy val providerBids = new TableQuery(tag => new ProviderBids(tag))
 
-  /** Entity class storing rows of table RememberMeTokens
-    *  @param id Database column id SqlType(uuid), PrimaryKey
-    *  @param selector Database column selector SqlType(varchar)
-    *  @param tokenHash Database column token_hash SqlType(varchar)
-    *  @param userId Database column user_id SqlType(uuid)
-    *  @param validTo Database column valid_to SqlType(OffsetDateTime) */
-  case class RememberMeTokensRow(id: java.util.UUID, selector: String, tokenHash: String, userId: java.util.UUID, validTo: OffsetDateTime)
+
+  import com.jc.api.model.RememberMeToken
   /** GetResult implicit for fetching RememberMeTokensRow objects using plain SQL queries */
-  implicit def GetResultRememberMeTokensRow(implicit e0: GR[java.util.UUID], e1: GR[String], e2: GR[OffsetDateTime]): GR[RememberMeTokensRow] = GR{
+  implicit def GetResultRememberMeTokensRow(implicit e0: GR[java.util.UUID], e1: GR[String], e2: GR[OffsetDateTime]): GR[RememberMeToken] = GR{
     prs => import prs._
-      RememberMeTokensRow.tupled((<<[java.util.UUID], <<[String], <<[String], <<[java.util.UUID], <<[OffsetDateTime]))
+      RememberMeToken.tupled((<<[java.util.UUID], <<[String], <<[String], <<[java.util.UUID], <<[OffsetDateTime]))
   }
   /** Table description of table REMEMBER_ME_TOKENS. Objects of this class serve as prototypes for rows in queries. */
-  class RememberMeTokens(_tableTag: Tag) extends profile.api.Table[RememberMeTokensRow](_tableTag, "REMEMBER_ME_TOKENS") {
-    def * = (id, selector, tokenHash, userId, validTo) <> (RememberMeTokensRow.tupled, RememberMeTokensRow.unapply)
+  class RememberMeTokens(_tableTag: Tag) extends profile.api.Table[RememberMeToken](_tableTag, "REMEMBER_ME_TOKENS") {
+    def * = (id, selector, tokenHash, userId, validTo) <> (RememberMeToken.tupled, RememberMeToken.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(selector), Rep.Some(tokenHash), Rep.Some(userId), Rep.Some(validTo)).shaped.<>({r=>import r._; _1.map(_=> RememberMeTokensRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(selector), Rep.Some(tokenHash), Rep.Some(userId), Rep.Some(validTo)).shaped.<>({r=>import r._; _1.map(_=> RememberMeToken.tupled((_1.get, _2.get, _3.get, _4.get, _5.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(uuid), PrimaryKey */
     val id: Rep[java.util.UUID] = column[java.util.UUID]("id", O.PrimaryKey)

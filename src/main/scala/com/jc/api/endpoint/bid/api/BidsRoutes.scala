@@ -17,6 +17,8 @@ trait BidsRoutes extends RoutesSupport with StrictLogging with ProviderSupport{
 
   def bidService: BidService
 
+  implicit val consumerBidCbs  = CanBeSerialized[ConsumerBid]
+
   val bidsRoutes = pathPrefix("consumerBids") {
     path("confirm") {
       post {
@@ -32,14 +34,25 @@ trait BidsRoutes extends RoutesSupport with StrictLogging with ProviderSupport{
           }
         }
       }
-    } ~ pathEnd {
+    } ~
+    pathEnd {
       put {
         entity(as[ConsumerBid]) { bid =>
+          /// TODO: insert consumer bid record
           completeOk
+        }
+      } ~
+      get {
+        parameters(('providerAskId.as[Long], 'isConfirmed.?)) { (askId, isConfirmedOpt) =>
+          val isConfirmed = isConfirmedOpt.map(_.toBoolean)
+          onSuccess(bidService.getConsumerBidsByProviderAskId(askId, isConfirmed)) { bids =>
+            complete(bids)
+          }
         }
       }
     }
   }
+  /// TODO: add routes for provider bids
 }
 
 trait ProviderSupport extends SessionSupport{
