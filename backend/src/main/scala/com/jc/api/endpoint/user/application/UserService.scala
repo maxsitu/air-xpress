@@ -50,7 +50,7 @@ class UserService(
       case Right(_) =>
         val salt          = Salt.newSalt()
         val now           = Instant.now().atOffset(ZoneOffset.UTC)
-        val userAddResult = userDao.addUser(User.withRandomUUID(login, email.toLowerCase, password, salt, roleId, now))
+        val userAddResult = userDao.addUser(User.withRandomUUID(login, email.toLowerCase, password, salt, roleId, now, passwordHashing))
         userAddResult.foreach { _ =>
           val confirmationEmail = emailTemplatingEngine.registrationConfirmation(login)
           emailService.scheduleEmail(email, confirmationEmail)

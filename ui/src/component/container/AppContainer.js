@@ -1,13 +1,13 @@
 import React from 'react';
-import {navigateTo} from '../../Redux/Action';
+import {navigateTo} from '../../state/action';
 import {connect} from 'react-redux';
 import {Route} from 'react-router-dom'
-import EnsureLoggedInContainer from './EnsureLoggedInContainer';
+import EnsureLoggedInContainer from './UserStatusContainer';
 import LoginValidationForm from '../../form/login/LoginValidationForm';
 import SignUpForm from '../../form/signup/SignUpForm';
 
 
-import {setRedirectPath} from '../../Redux/Action';
+import {setRedirectPath} from '../../state/action';
 
 const loginForm = ({match, location, history}) => {
   return <LoginValidationForm location={location}/>;

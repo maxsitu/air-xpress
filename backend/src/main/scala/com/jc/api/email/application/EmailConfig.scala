@@ -5,7 +5,7 @@ import com.typesafe.config.Config
 trait EmailConfig {
   def rootConfig: Config
 
-  private lazy val emailConfig = rootConfig.getConfig("templates/email")
+  private lazy val emailConfig = rootConfig.getConfig("email")
 
   lazy val emailEnabled              = emailConfig.getBoolean("enabled")
   lazy val emailSmtpHost             = emailConfig.getString("smtp-host")

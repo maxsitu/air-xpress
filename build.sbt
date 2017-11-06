@@ -84,7 +84,16 @@ val circeVersion = "0.8.0"
 val argon2javaVersion = "2.2"
 val argon2java        = "de.mkammerer" % "argon2-jvm" % argon2javaVersion
 
-lazy val rootProject = (project in file("backend"))
+lazy val rootProject = (project in file("."))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "air-xpress",
+    herokuFatJar in Compile := Some((assemblyOutputPath in backend in assembly).value),
+    deployHeroku in Compile := ((deployHeroku in Compile) dependsOn (assembly in backend)).value
+  )
+  .aggregate(backend, ui)
+
+lazy val backend = (project in file("backend"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,

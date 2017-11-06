@@ -1,13 +1,38 @@
 import React from 'react';
-import {render} from 'react-dom';
+import ReactDOM from 'react-dom';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import store from './Redux/Store/Store'
-import route from './Router/Router'
+import {Route} from 'react-router-dom';
+import {ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux';
+import createHistory from 'history/createBrowserHistory';
+import thunk from 'redux-thunk';
+import reducers from './state/reducer'
+import Navbar from './component/Navbar'
+import IndexPage from './page/IndexPage';
+import LoginPage from './page/LoginPage';
+import SignUpPage from './page/SingUpPage';
 
+const history = createHistory();
+const middleware = routerMiddleware(history)
 
-render(
+const store = createStore(combineReducers(
+  {
+    ...reducers,
+    router: routerReducer
+  }),
+  applyMiddleware(thunk, middleware)
+);
+
+ReactDOM.render(
   <Provider store={store}>
-    {route}
+    <ConnectedRouter history={history}>
+      <div>
+        <Route path="/" component={Navbar}/>
+        <Route exact path="/" render={() => <IndexPage/>}/>
+        <Route exact path="/login" render={() => <LoginPage currentPath="/login"/>}/>
+        <Route exact path="/signUp" render={() => <SignUpPage currentPath="/signUp"/>}/>
+      </div>
+    </ConnectedRouter>
   </Provider>,
   document.getElementById('root')
 );

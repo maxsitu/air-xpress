@@ -3,8 +3,6 @@ import {SubmissionError, Field, reduxForm} from 'redux-form';
 
 import {SessionService} from '../../common';
 import validate from './do/validate';
-import {logIn} from '../../Redux/Action';
-
 
 const renderField = ({input, label, type, meta: {asyncValidating, touched, error}}) => (
   <div>
@@ -23,7 +21,7 @@ function registerUser(dispatch) {
     return sessionService.register(regInfo)
       .then((resp) => {
         // console.log('SignUpForm:', resp);
-        dispatch(logIn());
+        // dispatch(logIn());
       })
       .catch((err) => {
         throw new SubmissionError(Object.assign(err, {

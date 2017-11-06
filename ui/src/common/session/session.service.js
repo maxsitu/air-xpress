@@ -47,29 +47,6 @@ class SessionService extends UserService {
     this._user = user;
   }
 
-  login(loginInput) {
-    const isLoggedIn = this.isLoggedIn();
-
-    if (isLoggedIn) {
-      return Promise.resolve(this.user);
-    }
-
-    return super.login(loginInput)
-      .then(user => {
-        this.user = user;
-      });
-  }
-
-  register(regInfo) {
-    return super.register(regInfo)
-      .then(() => {
-        return this.login({
-          login: regInfo.login,
-          password: regInfo.password
-        });
-      });
-  }
-
   isLoggedIn() {
     return this._hasSessionData() && !!this.user;
   }

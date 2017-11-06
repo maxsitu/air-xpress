@@ -7,6 +7,7 @@ import javax.crypto.spec.PBEKeySpec
 
 import com.jc.api.common.Utils
 import com.jc.api.endpoint.user.{UserId, UserRoleId, UserStatusId}
+import com.jc.api.common.crypto.PasswordHashing
 
 /** Entity class storing rows of table Users
   *  @param id Database column id SqlType(uuid), PrimaryKey
@@ -26,8 +27,9 @@ object User {
     plainPassword : String,
     salt          : String,
     roleId        : UserRoleId,
-    createdOn     : OffsetDateTime
-  ) = User(UUID.randomUUID(), login, login.toLowerCase, email, encryptPassword(plainPassword, salt), salt, roleId, createdOn)
+    createdOn     : OffsetDateTime,
+    passwordHashing: PasswordHashing
+  ) = User(UUID.randomUUID(), login, login.toLowerCase, email, passwordHashing.hashPassword(plainPassword, salt), salt, roleId, createdOn)
 
   def encryptPassword(password: String, salt: String): String = {
     // 10k iterations takes about 10ms to encrypt a password on a 2013 MacBook

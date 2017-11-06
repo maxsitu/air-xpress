@@ -1,11 +1,9 @@
 import React from 'react'
 import {connect} from 'react-redux'
 import {Field, reduxForm} from 'redux-form'
-import {Redirect} from 'react-router-dom';
 
 import {SessionService} from '../../common';
 import validate from './do/validate';
-import {logIn} from '../../Redux/Action';
 
 
 
@@ -16,29 +14,19 @@ class LoginValidationForm extends React.Component {
     this.sessionService = SessionService.getInstance();
   }
 
-  componentDidMount() {
-    const {dispatch} = this.props;
-    if (this.sessionService.isLoggedIn()) {
-      dispatch(logIn());
-    }
-  }
-
   render() {
-    const {handleSubmit, pristine, reset, submitting, isLoggedIn, submitLogin} = this.props;
-    return isLoggedIn ?
-      (
-        <Redirect to={this.redirectPath}/>
-      ) :
-      (
-        <form onSubmit={handleSubmit(submitLogin)}>
-          <Field name="login" type="text" component={renderField} label="Username"/>
-          <Field name="password" type="password" component={renderField} label="Password"/>
-          <div>
-            <button type="submit" disabled={submitting}>Login</button>
-            <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values</button>
-          </div>
-        </form>
-      )
+    const {handleSubmit, pristine, reset, submitting, submitLogin} = this.props;
+    return (
+      <form onSubmit={handleSubmit(submitLogin)}>
+        <Field name="login" type="text" component={renderField} label="Username"/>
+        <Field name="password" type="password" component={renderField} label="Password"/>
+        <Field name="rememberMe" type="checkbox" component={renderField} label="Remember me"/>
+        <div>
+          <button type="submit" disabled={submitting}>Sign up</button>
+          <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values</button>
+        </div>
+      </form>
+    )
   }
 }
 
@@ -48,11 +36,7 @@ let loginValidationForm = reduxForm({
 })(LoginValidationForm);
 
 loginValidationForm = connect(
-  state => {
-    return {
-      isLoggedIn: state.isLoggedIn
-    }
-  }, {
+  null, {
     submitLogin: submitLogin
   }
 )(loginValidationForm);
@@ -73,10 +57,7 @@ function submitLogin(loginInput) {
     const sessionService = SessionService.getInstance();
 
     return (dispatch) => {
-        return sessionService.login(loginInput).then(
-            () =>
-                dispatch(logIn())
-        );
+        return sessionService.login(loginInput);
     }
 }
 

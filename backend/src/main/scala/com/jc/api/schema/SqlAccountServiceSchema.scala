@@ -616,7 +616,7 @@ trait SqlAccountServiceSchema {
     /** Database column login_lowercase SqlType(varchar) */
     val loginLowercase: Rep[String] = column[String]("login_lowercase")
     /** Database column email SqlType(varchar) */
-    val email: Rep[String] = column[String]("templates/email")
+    val email: Rep[String] = column[String]("email")
     /** Database column password SqlType(varchar) */
     val password: Rep[String] = column[String]("password")
     /** Database column salt SqlType(varchar) */
