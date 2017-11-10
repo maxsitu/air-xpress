@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {connect} from 'react-redux';
+import {Link} from 'react-router-dom';
 import {Navbar, Nav, NavItem, Button} from 'react-bootstrap';
 import {LinkContainer} from 'react-router-bootstrap';
 
-import {UserStatusAction} from '../state/action'
+import {UserStatusAction} from '../state/action';
 import SessionService from '../common/session/session.service';
 
 class NavBar extends React.Component {
@@ -18,34 +19,38 @@ class NavBar extends React.Component {
 
     return (
       <Navbar>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <Link to="/">Air-Xpress</Link>
+          </Navbar.Brand>
+        </Navbar.Header>
         <Nav>
-          {
-            !isLoggedIn && (
+          {!isLoggedIn && (
+            <NavItem>
               <LinkContainer to="/login">
-                <NavItem>Login</NavItem>
+                <div>Login</div>
               </LinkContainer>
-            )
-          }
-          {
-            !isLoggedIn && (
+            </NavItem>
+          )}
+          {!isLoggedIn && (
+            <NavItem>
               <LinkContainer to="/signup">
-                <NavItem>Sign Up</NavItem>
+                <div>Sign Up</div>
               </LinkContainer>
-            )
-          }
-          {
-            isLoggedIn && (
+            </NavItem>
+          )}
+          {isLoggedIn && (
+            <NavItem>
               <LinkContainer to="/order">
-                <NavItem>Order Ticket</NavItem>
+                <div>Order Ticket</div>
               </LinkContainer>
-            )
-          }
-
-          {
-            isLoggedIn && (
+            </NavItem>
+          )}
+          {isLoggedIn && (
+            <NavItem>
               <Button onClick={logout}>Logout</Button>
-            )
-          }
+            </NavItem>
+          )}
         </Nav>
       </Navbar>);
   }

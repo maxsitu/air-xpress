@@ -6,9 +6,11 @@ export function userStatus(state = {
 
   switch (action.type) {
     case UserStatusActionType.SET_USER_LOGIN:
-      return Object.assign({}, {
-        isLoggedIn: action.value
-      }, state);
+      return Object.assign({},
+        state,
+        {
+          isLoggedIn: action.value
+        });
 
     default:
       return state;

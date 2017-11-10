@@ -6,14 +6,16 @@ import {Route} from 'react-router-dom';
 import {ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createBrowserHistory';
 import thunk from 'redux-thunk';
+import {UserStatusAction} from './state/action';
 import reducers from './state/reducer'
 import Navbar from './component/Navbar'
 import IndexPage from './page/IndexPage';
 import LoginPage from './page/LoginPage';
 import SignUpPage from './page/SingUpPage';
+import SessionService from "./common/session/session.service";
 
 const history = createHistory();
-const middleware = routerMiddleware(history)
+const middleware = routerMiddleware(history);
 
 const store = createStore(combineReducers(
   {
@@ -23,11 +25,17 @@ const store = createStore(combineReducers(
   applyMiddleware(thunk, middleware)
 );
 
+const sessionService = SessionService.getInstance();
+sessionService.refreshSession().then(() =>
+  sessionService.isLoggedIn() && store.dispatch(UserStatusAction.setUserStatusIsLoggedIn(true))
+);
+
+
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <div>
-        <Route path="/" component={Navbar}/>
+        <Route path="/" render={() => <Navbar/>}/>
         <Route exact path="/" render={() => <IndexPage/>}/>
         <Route exact path="/login" render={() => <LoginPage currentPath="/login"/>}/>
         <Route exact path="/signUp" render={() => <SignUpPage currentPath="/signUp"/>}/>

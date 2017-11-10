@@ -4,7 +4,7 @@ import {Field, reduxForm} from 'redux-form'
 
 import {SessionService} from '../../common';
 import validate from './do/validate';
-
+import {UserStatusAction} from '../../state/action';
 
 
 class LoginValidationForm extends React.Component {
@@ -15,18 +15,30 @@ class LoginValidationForm extends React.Component {
   }
 
   render() {
-    const {handleSubmit, pristine, reset, submitting, submitLogin} = this.props;
+    const {handleSubmit, pristine, reset, submitting, login} = this.props;
     return (
-      <form onSubmit={handleSubmit(submitLogin)}>
-        <Field name="login" type="text" component={renderField} label="Username"/>
-        <Field name="password" type="password" component={renderField} label="Password"/>
-        <Field name="rememberMe" type="checkbox" component={renderField} label="Remember me"/>
+      <form onSubmit={handleSubmit(login)}>
+        <Field name="login" type="text" component={this.renderField} label="Username"/>
+        <Field name="password" type="password" component={this.renderField} label="Password"/>
+        <Field name="rememberMe" type="checkbox" component={this.renderField} label="Remember me"/>
         <div>
-          <button type="submit" disabled={submitting}>Sign up</button>
-          <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values</button>
+          <button type="submit" disabled={submitting}>Login</button>
+          <button type="button" disabled={pristine || submitting} onClick={reset}>Clear values</button>
         </div>
       </form>
     )
+  }
+
+  renderField ({input, label, type, meta: {asyncValidating, touched, error}}) {
+    return (
+      <div>
+        <label>{label}</label>
+        <div className={asyncValidating ? 'async-validating' : ''}>
+          <input {...input} type={type} placeholder={label}/>
+          {touched && error && <span>{error}</span>}
+        </div>
+      </div>
+    );
   }
 }
 
@@ -35,30 +47,19 @@ let loginValidationForm = reduxForm({
   validate
 })(LoginValidationForm);
 
-loginValidationForm = connect(
-  null, {
-    submitLogin: submitLogin
-  }
-)(loginValidationForm);
-
-function  renderField ({input, label, type, meta: {asyncValidating, touched, error}}) {
-    return (
-        <div>
-            <label>{label}</label>
-            <div className={asyncValidating ? 'async-validating' : ''}>
-                <input {...input} type={type} placeholder={label}/>
-                {touched && error && <span>{error}</span>}
-            </div>
-        </div>
-    );
-}
-
-function submitLogin(loginInput) {
-    const sessionService = SessionService.getInstance();
-
-    return (dispatch) => {
-        return sessionService.login(loginInput);
+function mapDispatchToProps(dispatch) {
+  return {
+    login: (loginInput) => {
+      const sessionService = SessionService.getInstance();
+      return sessionService.login(loginInput).then(userInfo =>
+        dispatch(UserStatusAction.setUserStatusIsLoggedIn(true))
+      );
     }
+  }
 }
 
-export default loginValidationForm;
+
+
+export default connect(
+  null, mapDispatchToProps
+)(loginValidationForm);

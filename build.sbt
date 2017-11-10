@@ -2,11 +2,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import sbt.Keys.version
-import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoPackage
 
 import scala.sys.process.Process
 import scala.util.Try
 import complete.DefaultParsers._
+import sbt.{CrossVersion, IO}
 
 val slf4jVersion        = "1.7.21"
 val logBackVersion      = "1.1.7"
@@ -21,7 +21,9 @@ lazy val npmTask   = inputKey[Unit]("Run npm with arguments")
 lazy val commonSettings = Seq(
   name := """jt-api-service""",
   version := "2.1",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.12.4",
+  crossScalaVersions := Seq(scalaVersion.value, "2.11.8"),
+  crossVersion := CrossVersion.binary,
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
   updateNpm := {
     println("Updating npm dependencies")
@@ -84,6 +86,8 @@ val circeVersion = "0.8.0"
 val argon2javaVersion = "2.2"
 val argon2java        = "de.mkammerer" % "argon2-jvm" % argon2javaVersion
 
+lazy val slickGen = TaskKey[Seq[File]]("gen-tables")
+
 lazy val rootProject = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
@@ -111,16 +115,19 @@ lazy val backend = (project in file("backend"))
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
-    resolvers += Resolver.bintrayRepo("hseeberger", "maven"),
-    scaladOptions := {
-      val out = streams.value
-      val log = out.log
-      log.info("123")
-      val uc = update.value // update task happens-before scalacOptions
-      log.info("456")
-      uc.allConfigurations.take(3)
+    slickGen := {
+      val outputDir = (sourceManaged.value / "slick").getPath
+      val url = "jdbc:postgresql://localhost:5432/account_service" //
+      val jdbcDriver = "org.postgresql.Driver"
+      val slickDriver = "slick.jdbc.PostgresProfile"
+      val pkg = "com.jc.api.schema"
+      val userName = "jc_acct"
+      val password = "chairmanmao"
+      (runner in Compile).value.run("slick.codegen.SourceCodeGenerator", (dependencyClasspath in Compile).value.files, Seq[String](slickDriver, jdbcDriver, url, outputDir, pkg, userName, password), streams.value.log)
+
+      val fname = outputDir + "/com/jc/api/schema/"
+      Seq(file(fname))
     },
-    slickGen <<= slickCodeGenTask,
     buildInfoKeys     := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage  := "com.jc.api.endpoint.version",
     buildInfoObject   := "BuildInfo",
@@ -129,24 +136,23 @@ lazy val backend = (project in file("backend"))
       // if the build is done outside of a git repository, we still want it to succeed
       BuildInfoKey.action("buildSha")(Try(Process("git rev-parse HEAD").!!.stripLineEnd).getOrElse("?"))
     ),
-    mainClass in Compile := Some("com.jc.api.Main")
+    compile in Compile := {
+      val compilationResult = (compile in Compile).value
+      IO.touch(target.value / "compilationFinished")
+
+      compilationResult
+    },
+    mainClass in Compile := Some("com.jc.api.Main"),
+    unmanagedResourceDirectories in Compile := {
+      (unmanagedResourceDirectories in Compile).value ++ List(
+        baseDirectory.value.getParentFile / ui.base.getName / "dist"
+      )
+    }
   )
 
 lazy val ui = (project in file("ui"))
   .settings(commonSettings: _*)
-  .settings(test in Test := (test in Test).dependsOn(npmTask.toTask(" run test")).value)
+  .settings(test in Test := (test in Test).dependsOn(npmTask.toTask(" run test")).value
+  )
 
 
-lazy val slickGen = TaskKey[Seq[File]]("gen-tables")
-lazy val slickCodeGenTask = (sourceManaged, dependencyClasspath in Compile, runner in Compile, streams) map { (dir, cp, r, s) =>
-  val outputDir = (dir / "slick").getPath // place generated files in sbt's managed sources folder
-  val url = "jdbc:postgresql://localhost:5432/account_service" // connection info for a pre-populated throw-away, in-memory db for this demo, which is freshly initialized on every run
-  val jdbcDriver = "org.postgresql.Driver"
-  val slickDriver = "slick.jdbc.PostgresProfile"
-  val pkg = "com.jc.api.schema"
-  val userName = "jc_acct"
-  val password = "chairmanmao"
-  toError(r.run("slick.codegen.SourceCodeGenerator", cp.files, Array(slickDriver, jdbcDriver, url, outputDir, pkg, userName, password), s.log))
-  val fname = outputDir + "/com/jc/api/schema/"
-  Seq(file(fname))
-}

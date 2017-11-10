@@ -44,8 +44,8 @@ class SignUpForm extends React.Component {
         <Field name="confirmPassword" type="password" component={renderField} label="Confirm Password"/>
         {error && <strong>{error}</strong>}
         <div>
-          <button type="submit" disabled={submitting}>Login</button>
-          <button type="button" disabled={pristine || submitting} onClick={reset}>Clear Values</button>
+          <button type="submit" disabled={submitting}>Sign up</button>
+          <button type="button" disabled={pristine || submitting} onClick={reset}>Clear values</button>
         </div>
       </form>
     )
