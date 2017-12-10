@@ -17,10 +17,8 @@ class BidService (
     bidDao.confirmProviderBid(providerBidId)
   }
 
-  def confirmConsumerBidByConsumerBidId(consumerBidId: BidId): Future[Either[String, Int]] = {
-    bidDao.confirmConsumerBidTransactionally(consumerBidId) map (Right(_)) recover {
-      case e: Throwable => Left(e.getMessage)
-    }
+  def confirmConsumerBidByConsumerBidId(consumerBidId: BidId): Future[Int] = {
+    bidDao.confirmConsumerBidTransactionally(consumerBidId)
   }
 
   def getProviderIdByConsumerBidId(consumerBidId: BidId): Future[UserId] = {

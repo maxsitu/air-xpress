@@ -2,40 +2,43 @@ import {http} from '../../core/constants';
 import HttpBaseService from '../base/base.service';
 
 class ApiService extends HttpBaseService {
-  httpJson(url, method, body, headers) {
+  requestJson(url, method, body, headers) {
     headers = Object.assign({}, headers, {
       [http.headerKeys.CONTENT_TYPE]: http.contentTypes.APPLICATION_JSON
     });
 
-    return this.httpSend(url, method, body, headers);
+    return this.request(url, method, body, headers);
   }
 
-  httpGetJson(url, body, headers) {
-    return this.httpJson(url, 'GET', body, headers);
+  getJson(url, body, headers) {
+    return this.requestJson(url, 'GET', body, headers);
   }
 
-  httpPostJson(url, body, headers) {
-    return this.httpJson(url, 'POST', body, headers);
+  postJson(url, body, headers) {
+    return this.requestJson(url, 'POST', body, headers);
   }
 
-  httpSendBySpec(apiSpec, body = undefined) {
+  requestByFeature(apiSpec, body = undefined, extraAttrs = {}) {
     body = body && JSON.stringify(body);
     const url = apiSpec.path,
       method = apiSpec.method;
 
-    return this.httpSend(url, method, body, {});
+    const attrs = Object.assign({}, extraAttrs);
+
+    return this.request(url, method, body, attrs);
   }
 
-  httpSendJsonBySpec(apiSpec, body = undefined) {
+  requestJsonByFeature(apiSpec, body = undefined) {
     body = body && JSON.stringify(body);
     const url = apiSpec.path,
       method = apiSpec.method;
 
-    return this.httpJson(url, method, body).then(resp => {
+    return this.requestJson(url, method, body).then(resp => {
       if (resp.ok) {
         return resp;
       }
-      return resp.json().then(msg => {
+
+      return resp.text().then(msg => {
         throw msg;
       });
     });

@@ -76,7 +76,7 @@ trait SqlFlightSchema {
     def createdOn   = column[OffsetDateTime]("created_on")
     def modifiedOn  = column[OffsetDateTime]("modified_on")
 
-    def * = (id, orderId, provideUserId, consumeUserId, initiateUserId, passengerCount, startTime, endTime, createdOn, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
+    def * = (id, provideUserId, consumeUserId, initiateUserId, passengerCount, startTime, endTime, createdOn, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
   }
 
   protected class FlightSteps(tag: Tag) extends Table[FlightStep](tag, "flight_steps") {

@@ -38,7 +38,7 @@ class UserDao(protected val database: SqlDatabase)(implicit val ec: ExecutionCon
         roles  <- findUserRolesByUserId(u.id)
       } yield Some(FullUserData(u, status.getOrElse(UserStatus.DEFAULT_STATUS), roles))
     }
-    case None => Future.failed(new NullPointerException)
+    case None => Future.successful(None)
   }
 
   def findFullUserDataById(id: UserId): Future[Option[FullUserData]] = findUserById(id).flatMap(enrichUserWithStatusAndRoles)

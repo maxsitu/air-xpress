@@ -10,7 +10,7 @@ import {UserStatusAction} from '../../state/action';
 class LoginValidationForm extends React.Component {
   constructor(props) {
     super(props);
-    this.redirectPath   = props.redirectPath;
+    this.redirectPath = props.redirectPath;
     this.sessionService = SessionService.getInstance();
   }
 
@@ -20,7 +20,8 @@ class LoginValidationForm extends React.Component {
       <form onSubmit={handleSubmit(login)}>
         <Field name="login" type="text" component={this.renderField} label="Username"/>
         <Field name="password" type="password" component={this.renderField} label="Password"/>
-        <Field name="rememberMe" type="checkbox" component={this.renderField} label="Remember me"/>
+        <Field name="rememberMe" type="checkbox" component={this.renderCheckbox} label="Remember me"
+               defaultChecked={false}/>
         <div>
           <button type="submit" disabled={submitting}>Login</button>
           <button type="button" disabled={pristine || submitting} onClick={reset}>Clear values</button>
@@ -29,7 +30,7 @@ class LoginValidationForm extends React.Component {
     )
   }
 
-  renderField ({input, label, type, meta: {asyncValidating, touched, error}}) {
+  renderField({input, label, type, meta: {asyncValidating, touched, error}}) {
     return (
       <div>
         <label>{label}</label>
@@ -39,6 +40,18 @@ class LoginValidationForm extends React.Component {
         </div>
       </div>
     );
+  }
+
+  renderCheckbox({input, label, defaultChecked, type}) {
+    delete input.checked;
+    return (
+      <div>
+        <label>{label}</label>
+        <div>
+          <input {...input} type={type} defaultChecked={defaultChecked}/>
+        </div>
+      </div>
+    )
   }
 }
 
@@ -50,6 +63,7 @@ let loginValidationForm = reduxForm({
 function mapDispatchToProps(dispatch) {
   return {
     login: (loginInput) => {
+      loginInput.rememberMe = !!loginInput.rememberMe;
       const sessionService = SessionService.getInstance();
       return sessionService.login(loginInput).then(userInfo =>
         dispatch(UserStatusAction.setUserStatusIsLoggedIn(true))
@@ -57,8 +71,6 @@ function mapDispatchToProps(dispatch) {
     }
   }
 }
-
-
 
 export default connect(
   null, mapDispatchToProps

@@ -75,7 +75,5 @@ trait DependencyWiring extends StrictLogging {
 
   lazy val askService = new AskService(askDao)(serviceExecutionContext)
 
-
-
   lazy val refreshTokenStorage = new RefreshTokenStorageImpl(rememberMeTokenDao, system)(serviceExecutionContext)
 }

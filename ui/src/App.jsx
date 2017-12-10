@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import {Route} from 'react-router-dom';
+import {Route, Switch, Redirect} from 'react-router-dom';
 import {ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createBrowserHistory';
 import thunk from 'redux-thunk';
@@ -35,10 +35,13 @@ ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <div>
-        <Route path="/" render={() => <Navbar/>}/>
-        <Route exact path="/" render={() => <IndexPage/>}/>
-        <Route exact path="/login" render={() => <LoginPage currentPath="/login"/>}/>
-        <Route exact path="/signUp" render={() => <SignUpPage currentPath="/signUp"/>}/>
+        <Switch>
+          <Route exact path="/" render={() => <IndexPage/>}/>
+          <Route exact path="/login" render={() => <LoginPage currentPath="/login"/>}/>
+          <Route exact path="/signUp" render={() => <SignUpPage currentPath="/signUp"/>}/>
+          <Redirect to="/"/>
+        </Switch>
+
       </div>
     </ConnectedRouter>
   </Provider>,

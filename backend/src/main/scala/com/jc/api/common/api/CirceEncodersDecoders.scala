@@ -31,9 +31,4 @@ trait CirceEncodersDecoders {
     override def apply(c: HCursor): Result[OffsetDateTime] =
       Right(OffsetDateTime.from(dateTimeFormat.parse(c.top.get.noSpaces)))
   }
-
-  implicit object BooleanOptionDecoder extends Decoder[Option[Boolean]] {
-    override def apply(c: HCursor): Result[Option[Boolean]] =
-      Right(Try(c.top.get.noSpaces.toBoolean).map(Some(_)).getOrElse(Some(false)))
-  }
 }

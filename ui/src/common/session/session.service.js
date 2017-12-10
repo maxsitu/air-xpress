@@ -66,10 +66,9 @@ class SessionService extends UserService {
   }
 
   logout() {
-    this._removeLocalSessionData();
-    this._removeRefreshToken();
+    const rslt = super.logout();
     this.user = null;
-    return super.logout();
+    return rslt;
   }
 }
 

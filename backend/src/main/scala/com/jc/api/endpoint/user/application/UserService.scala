@@ -8,6 +8,7 @@ import com.jc.api.common.crypto.{PasswordHashing, Salt}
 import com.jc.api.email.application.{EmailService, EmailTemplatingEngine}
 import com.jc.api.endpoint.user.{UserId, UserRoleId}
 import com.jc.api.model.{BasicUserData, FullUserData, User, UserStatus}
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,10 +17,12 @@ class UserService(
     emailService: EmailService,
     emailTemplatingEngine: EmailTemplatingEngine,
     passwordHashing: PasswordHashing
-)(implicit ec: ExecutionContext) {
+)(implicit ec: ExecutionContext) extends StrictLogging {
 
-  def findById(userId: UserId): Future[Option[BasicUserData]] =
+  def findById(userId: UserId): Future[Option[BasicUserData]] = {
+    logger.info("userId: {}", userId)
     userDao.findBasicUserDataById(userId)
+  }
 
   def registerNewUser(login: String, email: String, password: String, roleId: UserRoleId): Future[UserRegisterResult] = {
     def checkUserExistence(): Future[Either[UserRegisterResult, Unit]] = {

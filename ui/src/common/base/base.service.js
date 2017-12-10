@@ -9,7 +9,7 @@ class HttpBaseService {
    * @param headers {object} request header object
    * @returns {Promise} response sent back from remote
    */
-  httpSend(url, method, body, headers) {
+  request(url, method, body, headers) {
     const options = {
       method,
       body,

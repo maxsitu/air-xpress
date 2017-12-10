@@ -1,12 +1,13 @@
 package com.jc.api.endpoint.bid.api
 
-import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive0, ValidationRejection}
+import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive0, Directive1, ValidationRejection}
 import com.jc.api.common.api.RoutesSupport
 import com.jc.api.endpoint.user.api.SessionSupport
 import com.typesafe.scalalogging.StrictLogging
 import akka.http.scaladsl.server.Directives._
 import com.jc.api.endpoint.bid.BidId
 import com.jc.api.endpoint.bid.application.BidService
+import com.jc.api.endpoint.user.UserId
 import com.jc.api.endpoint.user.application.Session
 import com.jc.api.model.ConsumerBid
 import com.softwaremill.session.{RefreshTokenStorage, SessionManager}
@@ -22,7 +23,7 @@ trait BidsRoutes extends RoutesSupport with StrictLogging with ProviderSupport{
 
   implicit val consumerBidCbs  = CanBeSerialized[ConsumerBid]
 
-  val bidsRoutes = pathPrefix("consumerBids") {
+  val bidsRoutes = pathPrefix("consumerBid") {
     post {
       path("charge" / Segment) { token =>
         onComplete(bidService.chargeStripe(token)) {
@@ -34,12 +35,14 @@ trait BidsRoutes extends RoutesSupport with StrictLogging with ProviderSupport{
     path("confirm") {
       post {
         parameter('bidId.as[BidId]) { bidId =>
-          isProviderCurrentUser(bidId) {
-            onSuccess(bidService.confirmConsumerBidByConsumerBidId(bidId)) {
-              case Right(x) if x > 0 =>
-                completeOk
-              case _ =>
-                reject(ValidationRejection("Inadequate seats"))
+          providerIdOfBid(bidId) { providerId =>
+            userIdFromSession {
+              // Make sure the current userId is the provider
+                case `providerId` =>
+                  onSuccess(bidService.confirmConsumerBidByConsumerBidId(bidId)) { updatedCount =>
+                    complete(s"${updatedCount} rows of consumer bid confirmed")
+                  }
+                case _ => reject(ValidationRejection("Inadequate seats"))
             }
           }
         }
@@ -74,10 +77,9 @@ trait ProviderSupport extends SessionSupport{
 
   def bidService: BidService
 
-  def isProviderCurrentUser(bidId: BidId): Directive0 = userIdFromSession flatMap   { userId =>
+  def providerIdOfBid(bidId: BidId): Directive1[UserId] =
     onSuccess(bidService.getProviderIdByConsumerBidId(bidId)) flatMap {
-      case `userId` => pass
-      case _ => reject(AuthorizationFailedRejection)
+      case providerId: UserId => provide(providerId)
+      case _ => reject(ValidationRejection(s"provider of bid ${bidId} not found"))
     }
-  }
 }

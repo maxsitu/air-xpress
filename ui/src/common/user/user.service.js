@@ -1,11 +1,11 @@
-import {user} from '../../core/constants/api'
-import ApiService from '../api/api.service'
+import {user} from '../../core/constants/api';
+import ApiService from '../api/api.service';
 
 function onSuccess(resp) {
   if (resp.ok) {
     return resp.json();
   } else {
-    return Promise.reject(resp);
+    return Promise.reject(resp.text());
   }
 }
 
@@ -21,7 +21,8 @@ class UserService extends ApiService {
       email: regInfo.email,
       password: regInfo.password
     };
-    return this.httpSendJsonBySpec(user.register, info)
+
+    return this.requestJsonByFeature(user.register, info)
       .then(resp => {
         if (resp.ok) {
           return resp;
@@ -31,19 +32,19 @@ class UserService extends ApiService {
   }
 
   login(login) {
-    return this.httpSendJsonBySpec(user.login, login)
+    return this.requestJsonByFeature(user.login, login)
       .then(onSuccess)
       .catch(onError);
   }
 
   get() {
-    return this.httpSendJsonBySpec(user.info)
+    return this.requestJsonByFeature(user.info)
       .then(onSuccess)
       .catch(onError);
   }
 
   logout() {
-    return this.httpSendBySpec(user.logout)
+    return this.requestByFeature(user.logout)
       .then(resp => {
         if (!resp.ok) {
           return Promise.reject(resp);

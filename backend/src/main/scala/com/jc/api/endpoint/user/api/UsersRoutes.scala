@@ -11,10 +11,12 @@ import com.jc.api.model.{BasicUserData, UserRole, UserStatus}
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.typesafe.scalalogging.StrictLogging
+import io.circe.Decoder.Result
+import io.circe.{Decoder, HCursor}
 import io.circe.generic.auto._
 
 import scala.concurrent.Future
-import scala.util.Success
+import scala.util.{Success, Try}
 
 trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
 
@@ -122,6 +124,15 @@ case class RegistrationInput(login: String, email: String, password: String) {
 
 case class ChangePasswordInput(currentPassword: String, newPassword: String)
 
-case class LoginInput(login: String, password: String, rememberMe: Option[Boolean])
+case class LoginInput(login: String, password: String, rememberMe: Option[Boolean]) {
+  implicit object LoginInputDecoder extends Decoder[LoginInput] {
+    override def apply(c: HCursor): Result[LoginInput] =
+      for {
+        login <- c.get[String]("login")
+        passwd <- c.get[String]("password")
+        rememberMe <- c.get[Option[Boolean]]("rememberMe")
+      } yield LoginInput(login, passwd, rememberMe)
+  }
+}
 
 case class PatchUserInput(login: Option[String], email: Option[String])

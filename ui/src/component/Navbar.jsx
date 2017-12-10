@@ -39,13 +39,16 @@ class NavBar extends React.Component {
               </LinkContainer>
             </NavItem>
           )}
-          {isLoggedIn && (
-            <NavItem>
-              <LinkContainer to="/order">
-                <div>Order Ticket</div>
-              </LinkContainer>
-            </NavItem>
-          )}
+          <NavItem>
+            <LinkContainer to="/pickuprequests">
+              <div>Pickup Requests</div>
+            </LinkContainer>
+          </NavItem>
+          <NavItem>
+            <LinkContainer to="/flightinvites">
+              <div>Flight Invites</div>
+            </LinkContainer>
+          </NavItem>
           {isLoggedIn && (
             <NavItem>
               <Button onClick={logout}>Logout</Button>
