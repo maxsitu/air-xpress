@@ -6,6 +6,7 @@ import com.jc.api.common.sql.{DatabaseConfig, SqlDatabase}
 import com.jc.api.email.application.{DummyEmailService, EmailConfig, EmailTemplatingEngine, SmtpEmailService}
 import com.jc.api.endpoint.ask.application.{AskDao, AskService}
 import com.jc.api.endpoint.bid.application.{BidDao, BidService}
+import com.jc.api.endpoint.flight.application.FlightDao
 import com.jc.api.endpoint.location.application.{LocationDao, LocationService}
 import com.jc.api.endpoint.order.application.{OrderDao, OrderService}
 import com.jc.api.endpoint.plane.application.{PlaneDao, PlaneService}
@@ -45,6 +46,8 @@ trait DependencyWiring extends StrictLogging {
 
   lazy val bidDao   = new BidDao(sqlDatabase)(daoExecutionContext)
 
+  lazy val flightDao = new FlightDao(sqlDatabase)(daoExecutionContext)
+
   lazy val askDao   = new AskDao(sqlDatabase)(daoExecutionContext)
 
   lazy val rememberMeTokenDao = new RememberMeTokenDao(sqlDatabase)(daoExecutionContext)
@@ -73,7 +76,7 @@ trait DependencyWiring extends StrictLogging {
 
   lazy val bidService = new BidService(bidDao, askDao)(serviceExecutionContext)
 
-  lazy val askService = new AskService(askDao)(serviceExecutionContext)
+  lazy val askService = new AskService(askDao, flightDao)(serviceExecutionContext)
 
   lazy val refreshTokenStorage = new RefreshTokenStorageImpl(rememberMeTokenDao, system)(serviceExecutionContext)
 }

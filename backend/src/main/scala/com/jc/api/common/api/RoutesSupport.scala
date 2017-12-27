@@ -1,5 +1,7 @@
 package com.jc.api.common.api
 
+import java.time.OffsetDateTime
+
 import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
 import akka.http.scaladsl.model.{HttpCharsets, MediaTypes}
 import akka.http.scaladsl.model.headers.CacheDirectives._
@@ -11,7 +13,10 @@ import akka.stream.Materializer
 import com.jc.api.common.api.`X-Content-Type-Options`.`nosniff`
 import com.jc.api.common.api.`X-Frame-Options`.`DENY`
 import com.jc.api.common.api.`X-XSS-Protection`.`1; mode=block`
-import io.circe.{Decoder, Encoder}
+import com.jc.api.endpoint.flight.api.{BasicFlightPlan, BasicFlightStep}
+import com.jc.api.endpoint.location.LocationId
+import io.circe.Decoder.Result
+import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.jawn.decode
 
 /**

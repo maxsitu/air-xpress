@@ -109,8 +109,7 @@ ALTER TABLE "LOCATIONS"
 -- FLIGHT PLANS
 CREATE TABLE "FLIGHT_PLANS" (
   "id"              SERIAL8  PRIMARY KEY,
-  "owner_id"        UUID     REFERENCES "USERS"(id),
-  "description"     VARCHAR,
+  "passenger_num"   INT4,
   "start_time"      TIMESTAMP,
   "end_time"        TIMESTAMP,
   "created_on"      TIMESTAMP NOT NULL,
@@ -141,7 +140,6 @@ CREATE TABLE "CONSUMER_ASKS" (
   "consumer_id"   UUID NOT NULL REFERENCES "USERS" (id),
   "passengers"    INT8 NOT NULL,
   "active"        BOOLEAN DEFAULT TRUE,
-  "asked_on"      TIMESTAMP NOT NULL,
   "modified_on"   TIMESTAMP NOT NULL
 );
 ALTER TABLE "CONSUMER_ASKS"

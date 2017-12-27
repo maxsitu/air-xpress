@@ -16,14 +16,17 @@ class FlightService (
   def addPlan(flightPlan: FlightPlan): Future[FlightPlanId] =
     flightDao.addPlan(flightPlan)
 
-  def findPlanByProvideUserId(userId: UserId): Future[Seq[FlightPlan]] =
-    flightDao.findPlanByProvideUserId(userId)
+  def findPlan(id: FlightPlanId): Future[FlightPlan] =
+    flightDao.findPlanById(id)
 
-  def findPlanByConsumeUserId(userId: UserId): Future[Seq[FlightPlan]] =
-    flightDao.findPlanByConsumeUserId(userId)
-
-  def findPlanByInitiateUserId(userId: UserId): Future[Seq[FlightPlan]] =
-    flightDao.findPlanByInitiateUserId(userId)
+//  def findPlanByProvideUserId(userId: UserId): Future[Seq[FlightPlan]] =
+//    flightDao.findPlanByProvideUserId(userId)
+//
+//  def findPlanByConsumeUserId(userId: UserId): Future[Seq[FlightPlan]] =
+//    flightDao.findPlanByConsumeUserId(userId)
+//
+//  def findPlanByInitiateUserId(userId: UserId): Future[Seq[FlightPlan]] =
+//    flightDao.findPlanByInitiateUserId(userId)
 
   /*
   * Endpoints for step
@@ -43,6 +46,6 @@ class FlightService (
   def addOrder(order: FlightOrder): Future[FlightOrderId] =
     flightDao.addOrder(order)
 
-  def findOrderByPlanId(planId: FlightPlanId): Future[Option[FlightOrder]] =
-    flightDao.findOrderByPlanId(planId)
+//  def findOrderByPlanId(planId: FlightPlanId): Future[Option[FlightOrder]] =
+//    flightDao.findOrderByPlanId(planId)
 }

@@ -3,6 +3,7 @@ package com.jc.api
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import com.jc.api.common.api.RoutesRequestWrapper
+import com.jc.api.endpoint.ask.api.AsksRoutes
 import com.jc.api.endpoint.bid.api.BidsRoutes
 import com.jc.api.endpoint.location.api.LocationRoutes
 import com.jc.api.endpoint.order.api.OrdersRoutes
@@ -17,7 +18,8 @@ trait Routes extends RoutesRequestWrapper
   with LocationRoutes
   with PlanesRoutes
   with BidsRoutes
-  with VersionRoutes{
+  with VersionRoutes
+  with AsksRoutes {
 
   def system: ActorSystem
   def config: ServerConfig
@@ -29,6 +31,7 @@ trait Routes extends RoutesRequestWrapper
         locationRoutes ~
         planesRoutes ~
         bidsRoutes ~
+        providerAsksRoutes ~
         versionRoutes
     } ~
       getFromResourceDirectory("webapp") ~

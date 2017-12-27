@@ -89,6 +89,8 @@ trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
                     reject(ValidationRejection(UserConstants.MSG_LOCKED_USER))
                   case UserStatus.STATUS_DELETE =>
                     reject(ValidationRejection(UserConstants.MSG_DELETED_USER))
+                  case _ =>
+                    reject(ValidationRejection(UserConstants.MSG_INACTIVE_USER))
                 }
             }
           }
