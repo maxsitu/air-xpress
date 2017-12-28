@@ -78,9 +78,9 @@ trait SqlFlightSchema {
   import database._
   import database.profile.api._
 
-  protected val flightPlans = TableQuery[FlightPlans]
+  val flightPlans = TableQuery[FlightPlans]
 
-  protected val flightSteps = TableQuery[FlightSteps]
+  val flightSteps = TableQuery[FlightSteps]
 
   protected val flightOrders = TableQuery[FlightOrders]
 

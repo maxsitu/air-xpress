@@ -234,107 +234,64 @@ trait SqlAccountServiceSchema {
   /** Collection-like TableQuery object for table ConsumerBids */
   lazy val consumerBids = new TableQuery(tag => new ConsumerBids(tag))
 
-  /** Entity class storing rows of table FlightPlans
-    *
-    * @param id          Database column id SqlType(bigserial), AutoInc, PrimaryKey
-    * @param ownerId     Database column owner_id SqlType(uuid), Default(None)
-    * @param description Database column description SqlType(varchar), Default(None)
-    * @param startTime   Database column start_time SqlType(OffsetDateTime), Default(None)
-    * @param endTime     Database column end_time SqlType(OffsetDateTime), Default(None)
-    * @param createdOn   Database column created_on SqlType(OffsetDateTime)
-    * @param modifiedOn  Database column modified_on SqlType(OffsetDateTime) */
-  case class FlightPlansRow(
-    id: Long,
-    ownerId: Option[java.util.UUID] = None,
-    description: Option[String] = None,
-    startTime: Option[OffsetDateTime] = None,
-    endTime: Option[OffsetDateTime] = None,
-    createdOn: OffsetDateTime,
-    modifiedOn: OffsetDateTime
-  )
+  import com.jc.api.model.FlightPlan
 
-  /** GetResult implicit for fetching FlightPlansRow objects using plain SQL queries */
+  /** GetResult implicit for fetching FlightPlan objects using plain SQL queries */
   implicit def GetResultFlightPlansRow(
     implicit e0: GR[Long],
-    e1: GR[Option[java.util.UUID]],
-    e2: GR[Option[String]],
-    e3: GR[Option[OffsetDateTime]],
-    e4: GR[OffsetDateTime]): GR[FlightPlansRow] = GR { prs =>
+    e1: GR[Int],
+    e2: GR[OffsetDateTime]): GR[FlightPlan] = GR { prs =>
       import prs._
-      FlightPlansRow.tupled(
-        (<<[Long], <<?[java.util.UUID], <<?[String], <<?[OffsetDateTime], <<?[OffsetDateTime], <<[OffsetDateTime], <<[OffsetDateTime])
+    FlightPlan.tupled(
+        (<<[Long], <<[Int], <<[OffsetDateTime], <<[OffsetDateTime], <<[OffsetDateTime])
       )
   }
 
   /** Table description of table FLIGHT_PLANS. Objects of this class serve as prototypes for rows in queries. */
-  class FlightPlans(_tableTag: Tag) extends profile.api.Table[FlightPlansRow](_tableTag, "FLIGHT_PLANS") {
-    def * = (id, ownerId, description, startTime, endTime, createdOn, modifiedOn) <> (FlightPlansRow.tupled, FlightPlansRow.unapply)
+  class FlightPlans(_tableTag: Tag) extends profile.api.Table[FlightPlan](_tableTag, "FLIGHT_PLANS") {
+    def * = (id, passengerNum, startTime, endTime, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
 
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), ownerId, description, startTime, endTime, Rep.Some(createdOn), Rep.Some(modifiedOn
+    def ? = (Rep.Some(id), Rep.Some(passengerNum), Rep.Some(startTime), Rep.Some(endTime), Rep.Some(modifiedOn
     )).shaped.<>(
-      { r => import r._; _1.map(_ => FlightPlansRow.tupled((_1.get, _2, _3, _4, _5, _6.get, _7.get))) },
+      { r => import r._; _1.map(_ => FlightPlan.tupled((_1.get, _2.get, _3.get, _4.get, _5.get))) },
       (_: Any) => throw new Exception("Inserting into ? projection not supported.")
     )
 
     /** Database column id SqlType(bigserial), AutoInc, PrimaryKey */
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
-    /** Database column owner_id SqlType(uuid), Default(None) */
-    val ownerId: Rep[Option[java.util.UUID]] = column[Option[java.util.UUID]]("owner_id", O.Default(None))
-    /** Database column description SqlType(varchar), Default(None) */
-    val description: Rep[Option[String]] = column[Option[String]]("description", O.Default(None))
+    /** Database column passenger_num SqlType(int) */
+    def passengerNum = column[Int]("passenger_num")
     /** Database column start_time SqlType(OffsetDateTime), Default(None) */
-    val startTime: Rep[Option[OffsetDateTime]] = column[Option[OffsetDateTime]]("start_time", O.Default(None))
+    val startTime: Rep[OffsetDateTime] = column[OffsetDateTime]("start_time")
     /** Database column end_time SqlType(OffsetDateTime), Default(None) */
-    val endTime: Rep[Option[OffsetDateTime]] = column[Option[OffsetDateTime]]("end_time", O.Default(None))
-    /** Database column created_on SqlType(OffsetDateTime) */
-    val createdOn: Rep[OffsetDateTime] = column[OffsetDateTime]("created_on")
+    val endTime: Rep[OffsetDateTime] = column[OffsetDateTime]("end_time")
     /** Database column modified_on SqlType(OffsetDateTime) */
     val modifiedOn: Rep[OffsetDateTime] = column[OffsetDateTime]("modified_on")
-
-    /** Foreign key referencing Users (database name FLIGHT_PLANS_owner_id_fkey) */
-    lazy val usersFk = foreignKey("FLIGHT_PLANS_owner_id_fkey", ownerId, users)(
-      r => Rep.Some(r.id), onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction
-    )
   }
 
   /** Collection-like TableQuery object for table FlightPlans */
   lazy val flightPlans = new TableQuery(tag => new FlightPlans(tag))
 
-  /** Entity class storing rows of table FlightSteps
-    *
-    * @param id             Database column id SqlType(bigserial), AutoInc, PrimaryKey
-    * @param planId         Database column plan_id SqlType(int8)
-    * @param fromLocationId Database column from_location_id SqlType(int4)
-    * @param toLocationId   Database column to_location_id SqlType(int4)
-    * @param fromTime       Database column from_time SqlType(OffsetDateTime)
-    * @param toTime         Database column to_time SqlType(OffsetDateTime) */
-  case class FlightStepsRow(
-    id: Long,
-    planId: Long,
-    fromLocationId: Int,
-    toLocationId: Int,
-    fromTime: OffsetDateTime,
-    toTime: OffsetDateTime
-  )
+  import com.jc.api.model.FlightStep
 
   /** GetResult implicit for fetching FlightStepsRow objects using plain SQL queries */
   implicit def GetResultFlightStepsRow(
     implicit e0: GR[Long],
     e1: GR[Int],
-    e2: GR[OffsetDateTime]): GR[FlightStepsRow] = GR { prs =>
+    e2: GR[OffsetDateTime]): GR[FlightStep] = GR { prs =>
       import prs._
-      FlightStepsRow.tupled((<<[Long], <<[Long], <<[Int], <<[Int], <<[OffsetDateTime], <<[OffsetDateTime]))
+    FlightStep.tupled((<<[Long], <<[Long], <<[Int], <<[Int], <<[OffsetDateTime], <<[OffsetDateTime]))
   }
 
   /** Table description of table FLIGHT_STEPS. Objects of this class serve as prototypes for rows in queries. */
-  class FlightSteps(_tableTag: Tag) extends profile.api.Table[FlightStepsRow](_tableTag, "FLIGHT_STEPS") {
-    def * = (id, planId, fromLocationId, toLocationId, fromTime, toTime) <> (FlightStepsRow.tupled, FlightStepsRow.unapply)
+  class FlightSteps(_tableTag: Tag) extends profile.api.Table[FlightStep](_tableTag, "FLIGHT_STEPS") {
+    def * = (id, planId, fromLocationId, toLocationId, fromTime, toTime) <> (FlightStep.tupled, FlightStep.unapply)
 
     /** Maps whole row to an option. Useful for outer joins. */
     def ? = (Rep.Some(id), Rep.Some(planId), Rep.Some(fromLocationId), Rep.Some(toLocationId), Rep.Some(fromTime
     ), Rep.Some(toTime)).shaped.<>(
-      { r => import r._; _1.map(_ => FlightStepsRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get))) },
+      { r => import r._; _1.map(_ => FlightStep.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get))) },
       (_: Any) => throw new Exception("Inserting into ? projection not supported.")
     )
 
@@ -343,9 +300,9 @@ trait SqlAccountServiceSchema {
     /** Database column plan_id SqlType(int8) */
     val planId: Rep[Long] = column[Long]("plan_id")
     /** Database column from_location_id SqlType(int4) */
-    val fromLocationId: Rep[Int] = column[Int]("from_location_id")
+    val fromLocationId: Rep[Long] = column[Long]("from_location_id")
     /** Database column to_location_id SqlType(int4) */
-    val toLocationId: Rep[Int] = column[Int]("to_location_id")
+    val toLocationId: Rep[Long] = column[Long]("to_location_id")
     /** Database column from_time SqlType(OffsetDateTime) */
     val fromTime: Rep[OffsetDateTime] = column[OffsetDateTime]("from_time")
     /** Database column to_time SqlType(OffsetDateTime) */
@@ -376,7 +333,7 @@ trait SqlAccountServiceSchema {
     * @param geoLat Database column geo_lat SqlType(float8)
     * @param geoLon Database column geo_lon SqlType(float8) */
   case class LocationsRow(
-    id: Int,
+    id: Long,
     code: String,
     name: String,
     geoLat: Double,
@@ -385,7 +342,7 @@ trait SqlAccountServiceSchema {
 
   /** GetResult implicit for fetching LocationsRow objects using plain SQL queries */
   implicit def GetResultLocationsRow(
-    implicit e0: GR[Int],
+    implicit e0: GR[Long],
     e1: GR[String],
     e2: GR[Double]): GR[LocationsRow] = GR { prs =>
       import prs._
@@ -403,7 +360,7 @@ trait SqlAccountServiceSchema {
     )
 
     /** Database column id SqlType(serial), AutoInc, PrimaryKey */
-    val id: Rep[Int] = column[Int]("id", O.AutoInc, O.PrimaryKey)
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
     /** Database column code SqlType(varchar) */
     val code: Rep[String] = column[String]("code")
     /** Database column name SqlType(varchar) */
