@@ -7,7 +7,7 @@ import com.jc.api.schema.{SqlAccountServiceSchema}
 import scala.concurrent.{ExecutionContext, Future}
 
 class RememberMeTokenDao(protected val database: SqlDatabase)(implicit ec: ExecutionContext)
-    extends SqlAccountServiceSchema {
+    extends SqlUserSchema {
 
   import database._
   import database.profile.api._

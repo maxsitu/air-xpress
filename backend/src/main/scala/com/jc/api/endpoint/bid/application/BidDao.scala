@@ -1,17 +1,22 @@
 package com.jc.api.endpoint.bid.application
 
+import java.time.OffsetDateTime
+
 import com.jc.api.common.Utils
 import com.jc.api.common.sql.SqlDatabase
 import com.jc.api.endpoint.ask.AskId
+import com.jc.api.endpoint.ask.application.SqlAskSchema
 import com.jc.api.endpoint.bid.BidId
 import com.jc.api.endpoint.user.UserId
+import com.jc.api.endpoint.user.application.SqlUserSchema
 import com.jc.api.model.{ConsumerBid, ProviderAsk, ProviderBid}
 import com.jc.api.schema.SqlAccountServiceSchema
+import slick.model.ForeignKeyAction
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionContext) extends SqlAccountServiceSchema {
+class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionContext) extends SqlBidSchema {
 
   import database._
   import database.profile.api._
@@ -86,4 +91,135 @@ class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
     * Charging functions
     */
 //  def chargeConsumerBidTransactionally(bidId: BidId): Future[]
+}
+
+
+trait SqlBidSchema extends SqlUserSchema with SqlAskSchema {
+  protected val database: SqlDatabase
+
+  import database._
+  import database.profile.api._
+  import slick.jdbc.{GetResult => GR}
+  import slick.model.ForeignKeyAction
+
+  /** GetResult implicit for fetching ProviderBidsRow objects using plain SQL queries */
+  implicit def GetResultProviderBidsRow(
+    implicit e0: GR[Long],
+    e1: GR[java.util.UUID],
+    e2: GR[Option[Boolean]],
+    e3: GR[OffsetDateTime]
+  ): GR[ProviderBid] = GR { prs =>
+    import prs._
+    ProviderBid.tupled(
+      (<<[Long], <<[Long], <<[java.util.UUID], <<[Double], <<?[Boolean], <<[Boolean], <<[Boolean], <<[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
+    )
+  }
+
+  /** Table description of table PROVIDER_BIDS. Objects of this class serve as prototypes for rows in queries. */
+  class ProviderBids(_tableTag: Tag) extends profile.api.Table[ProviderBid](_tableTag, "PROVIDER_BIDS") {
+    def * = (id, consumerAskId, bidderId, price, active, confirmed, charged, refunded, createdOn, modifiedOn) <> (ProviderBid.tupled, ProviderBid.unapply)
+
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(consumerAskId), Rep.Some(bidderId
+    ), price, active, confirmed, charged, refunded, Rep.Some(createdOn), Rep.Some(modifiedOn)).shaped.<>(
+      { r => import r._; _1.map(_ => ProviderBid.tupled((_1.get, _2.get, _3.get, _4, _5, _6, _7, _8, _9.get, _10.get))
+      )
+      }, (_: Any) => throw new Exception("Inserting into ? projection not supported.")
+    )
+
+    /** Database column id SqlType(bigserial), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column consumer_ask_id SqlType(int8) */
+    val consumerAskId: Rep[Long] = column[Long]("consumer_ask_id")
+    /** Database column bidder_id SqlType(uuid) */
+    val bidderId: Rep[java.util.UUID] = column[java.util.UUID]("bidder_id")
+    /** Database column price SqlType(float8) */
+    val price: Rep[Double] = column[Double]("price")
+    /** Database column active SqlType(bool), Default(Some(true)) */
+    val active: Rep[Option[Boolean]] = column[Option[Boolean]]("active", O.Default(Some(true)))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val confirmed: Rep[Boolean] = column[Boolean]("confirmed", O.Default(false))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val charged: Rep[Boolean] = column[Boolean]("charged", O.Default(false))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val refunded: Rep[Boolean] = column[Boolean]("refunded", O.Default(false))
+    /** Database column created_on SqlType(OffsetDateTime) */
+    val createdOn: Rep[OffsetDateTime] = column[OffsetDateTime]("created_on")
+    /** Database column modified_on SqlType(OffsetDateTime) */
+    val modifiedOn: Rep[OffsetDateTime] = column[OffsetDateTime]("modified_on")
+
+    /** Foreign key referencing ConsumerAsks (database name PROVIDER_BIDS_consumer_ask_id_fkey) */
+    lazy val consumerAsksFk = foreignKey("PROVIDER_BIDS_consumer_ask_id_fkey", consumerAskId, consumerAsks)(
+      r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction
+    )
+    /** Foreign key referencing Users (database name PROVIDER_BIDS_bidder_id_fkey) */
+    lazy val usersFk = foreignKey("PROVIDER_BIDS_bidder_id_fkey", bidderId, users)(
+      r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction
+    )
+  }
+
+  /** Collection-like TableQuery object for table ProviderBids */
+  lazy val providerBids = new TableQuery(tag => new ProviderBids(tag))
+
+  /** GetResult implicit for fetching ConsumerBidsRow objects using plain SQL queries */
+  implicit def GetResultConsumerBidsRow(
+    implicit e0: GR[Long],
+    e1: GR[java.util.UUID],
+    e2: GR[Option[Boolean]],
+    e3: GR[OffsetDateTime],
+    e4: GR[Int]
+  ): GR[ConsumerBid] = GR { prs =>
+    import prs._
+    ConsumerBid.tupled(
+      (<<[Long], <<[Long], <<[java.util.UUID], <<[Int], <<?[Boolean], <<[Boolean], <<[Boolean], <<[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
+    )
+  }
+
+  /** Table description of table CONSUMER_BIDS. Objects of this class serve as prototypes for rows in queries. */
+  class ConsumerBids(_tableTag: Tag) extends profile.api.Table[ConsumerBid](_tableTag, "CONSUMER_BIDS") {
+
+    def * = (id, providerAskId, bidderId, passengers, active, confirmed, charged, refunded, createdOn, modifiedOn) <> (ConsumerBid.tupled, ConsumerBid.unapply)
+
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(id), Rep.Some(providerAskId), Rep.Some(bidderId), Rep.Some(passengers
+    ), active, confirmed, charged, refunded, Rep.Some(createdOn), Rep.Some(modifiedOn)).shaped.<>(
+      { r => import r._; _1.map(
+        _ => ConsumerBid.tupled((_1.get, _2.get, _3.get, _4.get, _5, _6, _7, _8, _9.get, _10.get))
+      )
+      }, (_: Any) => throw new Exception("Inserting into ? projection not supported.")
+    )
+
+    /** Database column id SqlType(bigserial), AutoInc, PrimaryKey */
+    val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
+    /** Database column provider_ask_id SqlType(int8) */
+    val providerAskId: Rep[Long] = column[Long]("provider_ask_id")
+    /** Database column bidder_id SqlType(uuid) */
+    val bidderId: Rep[java.util.UUID] = column[java.util.UUID]("bidder_id")
+    /** Database column passengers SqlType(int8) */
+    val passengers: Rep[Int] = column[Int]("passengers")
+    /** Database column active SqlType(bool), Default(Some(true)) */
+    val active: Rep[Option[Boolean]] = column[Option[Boolean]]("active", O.Default(Some(true)))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val confirmed: Rep[Boolean] = column[Boolean]("confirmed", O.Default(false))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val charged: Rep[Boolean] = column[Boolean]("charged", O.Default(false))
+    /** Database column confirmed SqlType(bool), Default(Some(false)) */
+    val refunded: Rep[Boolean] = column[Boolean]("refunded", O.Default(false))
+    /** Database column created_on SqlType(OffsetDateTime) */
+    val createdOn: Rep[OffsetDateTime] = column[OffsetDateTime]("created_on")
+    /** Database column modified_on SqlType(OffsetDateTime) */
+    val modifiedOn: Rep[OffsetDateTime] = column[OffsetDateTime]("modified_on")
+
+    /** Foreign key referencing ProviderAsks (database name CONSUMER_BIDS_provider_ask_id_fkey) */
+    lazy val providerAsksFk = foreignKey("CONSUMER_BIDS_provider_ask_id_fkey", providerAskId, providerAsks)(
+      r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction
+    )
+    /** Foreign key referencing Users (database name CONSUMER_BIDS_bidder_id_fkey) */
+    lazy val usersFk = foreignKey("CONSUMER_BIDS_bidder_id_fkey", bidderId, users)(
+      r => r.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.NoAction
+    )
+  }
+
+  /** Collection-like TableQuery object for table ConsumerBids */
+  lazy val consumerBids = new TableQuery(tag => new ConsumerBids(tag))
 }
