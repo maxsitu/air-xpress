@@ -1,5 +1,6 @@
 package com.jc.api.endpoint.ask.api
 
+import akka.http.scaladsl.model.StatusCodes
 import com.jc.api.common.api.RoutesSupport
 import com.jc.api.endpoint.ask.application.AskService
 import com.jc.api.endpoint.user.api.SessionSupport
@@ -11,13 +12,14 @@ import io.circe.Decoder.Result
 import io.circe.{Decoder, HCursor}
 import io.circe.generic.auto._
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 /// TODO: add routes for asks
 trait AsksRoutes extends RoutesSupport with StrictLogging with SessionSupport{
   def askService: AskService
 
   implicit val fullProviderAskDataCb = CanBeSerialized[FullProviderAskData]
+  implicit val providerAsksCb = CanBeSerialized[Seq[ProviderAsk]]
 
   val providerAsksRoutes = pathPrefix("providerAsk") {
     put {
@@ -28,6 +30,14 @@ trait AsksRoutes extends RoutesSupport with StrictLogging with SessionSupport{
             case Success(askId) =>
               complete("success")
           }
+        }
+      }
+    } ~
+    get {
+      userIdFromSession { userId =>
+        onComplete(askService.findActiveProviderAsksByProviderId(userId)) {
+          case Failure(msg)  => complete(StatusCodes.InternalServerError)
+          case Success(asks) => complete(asks)
         }
       }
     }

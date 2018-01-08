@@ -5,9 +5,11 @@ import java.util.Locale
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.model.DateTime
+import akka.http.scaladsl.model.headers.HttpCookie
 import akka.stream.ActorMaterializer
 import com.jc.api.endpoint.user.application.Session
-import com.softwaremill.session.{SessionConfig, SessionManager}
+import com.softwaremill.session.{SessionConfig, SessionManager, SessionUtil}
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.Future
@@ -26,7 +28,18 @@ class Main() extends StrictLogging {
       lazy val sessionConfig = SessionConfig.fromConfig(config.rootConfig).copy(sessionEncryptData = true)
 
       implicit lazy val ec                                      = _system.dispatchers.lookup("akka-http-routes-dispatcher")
-      implicit lazy val sessionManager: SessionManager[Session] = new SessionManager[Session](sessionConfig)
+      implicit lazy val sessionManager: SessionManager[Session] = new SessionManager[Session](sessionConfig) {
+        def createToken(): String = SessionUtil.randomString(64)
+        def createCookie() = HttpCookie(
+          name = config.csrfCookieConfig.name,
+          value = createToken(),
+          expires = Some(DateTime.now + config.refreshTokenMaxAgeSeconds * 1000L),
+          domain = config.csrfCookieConfig.domain,
+          path = config.csrfCookieConfig.path,
+          secure = config.csrfCookieConfig.secure,
+          httpOnly = config.csrfCookieConfig.httpOnly
+        )
+      }
       implicit lazy val materializer                            = _materializer
       lazy val system                                           = _system
     }

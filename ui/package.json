@@ -44,7 +44,7 @@
   },
   "scripts": {
     "start-webpack": "webpack-dev-server --content-base src --port 9090 --inline --hot",
-    "start": "react-scripts start",
+    "start": "react-scripts start", // default port: 3000
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
