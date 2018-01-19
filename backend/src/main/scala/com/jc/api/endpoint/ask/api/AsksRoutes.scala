@@ -40,6 +40,14 @@ trait AsksRoutes extends RoutesSupport with StrictLogging with SessionSupport{
           case Success(asks) => complete(asks)
         }
       }
+    } ~
+    get {
+      parameter('orderBy.?, 'offset.as[Int], 'limit.as[Int], 'desc.as[Boolean].?) { (orderBy, offset, limit, desc) =>
+        onComplete(askService.findProviderAsks(orderBy, offset, limit, desc.getOrElse(true))){
+          case Success(asks) => complete(asks)
+          case Failure(msg)  => complete(StatusCodes.InternalServerError)
+        }
+      }
     }
   }
 }

@@ -36,6 +36,15 @@ class AskService (
   def findProviderAskByConsumerBid(consumerBid: ConsumerBid): Future[ProviderAsk] =
     askDao.findProviderAskByConsuerBid(consumerBid)
 
+  def findProviderAsks(orderBy: Option[String], offset: Int, limit: Int, isDesc: Boolean): Future[Seq[ProviderAsk]] =
+    orderBy.map(_.toLowerCase()) match {
+      case Some("modifiedOn") =>
+        askDao.rangeProviderAsksByModifiedOn(offset, limit, isDesc)
+      case Some("price") =>
+        askDao.rangeProviderAsksByPrice(offset, limit, isDesc)
+      case _ => askDao.rangeProviderAsksByModifiedOn(offset, limit, isDesc)
+
+    }
 
   /* Section: Consumer Ask */
 

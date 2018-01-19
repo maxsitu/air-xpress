@@ -37,7 +37,7 @@ trait SqlLocationSchema {
 
   protected val locations = TableQuery[Locations]
 
-  protected class Locations(tag: Tag) extends Table[Location](tag, "locations") {
+  protected class Locations(tag: Tag) extends Table[Location](tag, "LOCATIONS") {
     def id    = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def code  = column[String]("code", O.Unique)
     def name  = column[String]("name")

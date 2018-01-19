@@ -111,6 +111,26 @@ class AskDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
         .take(limit).result
     )
 
+  def rangeProviderAsksByModifiedOn(offset: Int, limit: Int, isDesc: Boolean): Future[Seq[ProviderAsk]] =
+    if (isDesc)
+      db.run(
+          providerAsks.sortBy(_.modifiedOn.desc.nullsLast).drop(offset).take(limit).result
+      )
+    else
+      db.run(
+        providerAsks.sortBy(_.modifiedOn.asc.nullsLast).drop(offset).take(limit).result
+      )
+
+  def rangeProviderAsksByPrice(offset: Int, limit: Int, isDesc: Boolean): Future[Seq[ProviderAsk]] =
+    if (isDesc)
+      db.run(
+        providerAsks.sortBy(_.price.desc.nullsLast).drop(offset).take(limit).result
+      )
+    else
+      db.run(
+        providerAsks.sortBy(_.price.asc.nullsLast).drop(offset).take(limit).result
+      )
+
   def rangeConsumerAsks(consumerId: UserId, offset: Int, limit: Int): Future[Seq[ConsumerAsk]] =
     db.run(
       consumerAsks.filter(_.consumerId === consumerId)

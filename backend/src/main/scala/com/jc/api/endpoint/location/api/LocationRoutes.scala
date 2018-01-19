@@ -36,7 +36,7 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
           complete(locations)
         }
       } ~
-      path(LongNumber) { locationId =>
+      path("id" / LongNumber) { locationId =>
         onSuccess(locationService.findByLocationId(locationId)) {
           case Some(location) => complete(location)
           case _  => complete(StatusCodes.NotFound)
