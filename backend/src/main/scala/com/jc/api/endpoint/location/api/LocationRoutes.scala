@@ -18,7 +18,7 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
   implicit val locationInvalidDataCbs = CanBeSerialized[InvalidData]
 
   val locationRoutes = pathPrefix("location") {
-    put {
+    post {
       entity(as[LocationInput]) { loc =>
         onSuccess(locationService.addLocation(loc.code, loc.name, loc.geoLat, loc.geoLon)) {
           case Right(_) => completeOk
@@ -27,6 +27,14 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
             case LocationAddResult.LocationExists(code) => complete(StatusCodes.Conflict, s"$code exists already!")
             case LocationAddResult.Success  => complete(StatusCodes.InternalServerError, "This part of code shouldn't reach")
           }
+        }
+      }
+    } ~
+    put {
+      path("id" / LongNumber) { locationId =>
+        entity(as[LocationInput]) { loc =>
+
+
         }
       }
     } ~

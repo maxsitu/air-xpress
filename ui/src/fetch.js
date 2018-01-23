@@ -14,10 +14,10 @@ let token = null;
 class SameOriginFetch {
   constructor() {
     const doFetch = async function(url, options) {
-      return await fetch(url, Object.assign({},
-        options, {
-          credentials: 'same-origin'
-        }));
+      return await fetch(url, {
+        credentials: 'same-origin',
+        ...options
+      });
     };
 
     const doFetchWithMethod = async function (method, url, options, body) {
@@ -85,15 +85,24 @@ class AuthFetch extends SameOriginFetch {
 
 class LocationFetch extends SameOriginFetch {
   async all() {
-    return await this.get('/location');
+    return await this.get('/location').then(responseJson);
   }
 
   async findById(id) {
-    return await this.get(`/location/id/${id}`);
+    return await this.get(`/location/id/${id}`).then(responseJson);
   }
 
   async findByCode(code) {
-    return await this.get(`/location/code/${code}`);
+    return await this.get(`/location/code/${code}`).then(responseJson);
+  }
+
+  async create(code, name, geoLat, geoLon) {
+    return await this.post(`/location`, null, {
+      code,
+      name,
+      geoLat,
+      geoLon
+    }).then(responseText)
   }
 }
 

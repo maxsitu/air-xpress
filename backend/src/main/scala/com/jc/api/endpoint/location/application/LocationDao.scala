@@ -10,12 +10,18 @@ import scala.util.Try
 /**
   * Created by walle on 7/14/17.
   */
-class LocationDao (protected val database: SqlDatabase)(implicit val ec: ExecutionContext) extends SqlLocationSchema  {
+class LocationDao (protected val database: SqlDatabase)(implicit val ec: ExecutionContext) extends SqlLocationSchema {
+
   import database._
   import database.profile.api._
 
   def add(loc: Location): Future[LocationId] =
     db.run((locations returning locations.map(_.id)) += loc)
+
+  def update(loc: Location) = {
+    val q = for {l <- locations if l.id === loc.id} yield (l.code, l.name, l.geoLat, l.geoLon)
+    db.run(q.update(loc.code, loc.name, loc.geoLat, loc.geoLon))
+  }
 
   def findAll(): Future[Seq[Location]] =
     db.run(locations.result)
