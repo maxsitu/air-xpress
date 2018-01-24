@@ -1,7 +1,7 @@
 package com.jc.api.endpoint.location.application
 
 import com.jc.api.endpoint.location.LocationId
-import com.jc.api.endpoint.location.application.LocationAddResult.InvalidData
+import com.jc.api.endpoint.location.application.LocationModifyResult.{InvalidData, LocationNotExists}
 import com.jc.api.model.Location
 
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -14,29 +14,45 @@ class LocationService (
   locationDao: LocationDao
 )(implicit ec: ExecutionContext){
 
-  def addLocation(code: String, name: String, geoLat: String, geoLon: String): Future[Either[LocationAddResult, LocationId]] = {
-    def checkLocationExistence(): Future[Either[LocationAddResult.LocationExists, Unit]] = {
+  def addLocation(code: String, name: String, geoLat: Double, geoLon: Double): Future[Either[LocationModifyResult, LocationId]] = {
+    def checkLocationExistence(): Future[Either[LocationModifyResult.LocationExists, Unit]] = {
       val existingLocationFuture = locationDao.findByCode(code)
       existingLocationFuture map  {
-        case Some(_) => Left(LocationAddResult.LocationExists(code))
+        case Some(_) => Left(LocationModifyResult.LocationExists(code))
         case None => Right((): Unit)
       }
     }
 
-    LocationTransformValidator.toLocation(code, name, geoLat, geoLon).fold(
-      result =>
-        Future.successful(Left(result)),
-
-      location =>
-        LocationTransformValidator.validateLocation(location) match {
-          case LocationAddResult.Success => checkLocationExistence().flatMap {
-            case Left(result) => Future.successful(Left(result))
-            case Right(_) => locationDao.add(location).map(Right(_))
-          }
-          case invalid => Future.successful(Left(invalid))
+    val location = Location(0, code, name, geoLat, geoLon);
+    LocationTransformValidator.validateLocation(location) match {
+        case LocationModifyResult.Success => checkLocationExistence().flatMap {
+          case Left(result) => Future.successful(Left(result))
+          case Right(_) => locationDao.add(location).map(Right(_))
         }
-    )
+        case invalid => Future.successful(Left(invalid))
+      }
+
   }
+
+  def updateLocation(id: LocationId, code: String, name: String, geoLat: Double, geoLon: Double): Future[Either[LocationModifyResult, LocationId]] = {
+    def checkLocationExistence(): Future[Either[LocationNotExists, LocationId]] = {
+      val existingLocationFuture = locationDao.findById(id)
+      existingLocationFuture map  {
+        case None => Left(LocationNotExists(id))
+        case Some(_) => Right(id)
+      }
+    }
+
+    val location = Location(id, code, name, geoLat, geoLon)
+    LocationTransformValidator.validateLocation(location) match {
+      case LocationModifyResult.Success => checkLocationExistence().flatMap {
+        case Right(_) => locationDao.update(location).map(Right(_))
+        case a @ Left(_) => Future.successful(a)
+      }
+      case invalid => Future.successful(Left(invalid))
+    }
+  }
+
 
   def findByLocationId(id: LocationId): Future[Option[Location]] =
     locationDao.findById(id)
@@ -48,9 +64,9 @@ class LocationService (
     locationDao.findAll()
 }
 
-sealed trait LocationAddResult
+sealed trait LocationModifyResult
 
-object LocationAddResult {
+object LocationModifyResult {
   object ERROR_MSG {
     val LAT_NOT_DOUBLE  = "Geo latitude is not a float!"
     val LON_NOT_DOUBLE  = "Geo longitude is not a float!"
@@ -58,7 +74,7 @@ object LocationAddResult {
     val LON_INVALID     = "Geo Longitude is not valid!"
   }
 
-  case class InvalidData(geoLat: Option[String] = None, geoLon: Option[String] = None) extends LocationAddResult{
+  case class InvalidData(geoLat: Option[String] = None, geoLon: Option[String] = None) extends LocationModifyResult{
     def withGeoLat(geoLat: Try[Double]): InvalidData = geoLat match {
       case scala.util.Success(_) => InvalidData(geoLat = None, geoLon = geoLon)
       case Failure(_) => InvalidData(geoLat = Some(ERROR_MSG.LAT_NOT_DOUBLE), geoLon = geoLon)
@@ -74,31 +90,25 @@ object LocationAddResult {
     def withInvalidGeoLon: InvalidData = InvalidData(geoLat = geoLat, geoLon = Some(ERROR_MSG.LON_INVALID))
   }
 
-  case class LocationExists(code: String) extends LocationAddResult
+  case class LocationExists(code: String) extends LocationModifyResult
 
-  case object Success extends LocationAddResult
+  case class LocationNotExists(id: LocationId) extends LocationModifyResult
+
+  case object Success extends LocationModifyResult
 }
 
 object LocationTransformValidator {
 
-  def toLocation(code: String, name: String, geoLat: String, geoLon: String): Either[LocationAddResult, Location] = {
+  def toLocation(code: String, name: String, geoLat: Double, geoLon: Double): Either[LocationModifyResult, Location] = Right(Location(0, code, name, geoLat, geoLon))
 
-    val (lat, lon) = (Try (geoLat.toDouble), Try (geoLon.toDouble))
-
-    if (Seq(lat, lon).forall(_.isSuccess))
-      Right(Location(0, code, name, lat.get, lon.get))
-    else
-      Left(LocationAddResult.InvalidData().withGeoLat(lat).withGeoLon(lon))
-  }
-
-  def validateLocation(location: Location):LocationAddResult = {
+  def validateLocation(location: Location):LocationModifyResult = {
     def isValidGeo(num: Double): Boolean = (num <=180 && num >= -180)
 
     if (Seq(location.geoLat, location.geoLon).forall(isValidGeo)) {
-      LocationAddResult.Success
+      LocationModifyResult.Success
     }
     else {
-      var result = LocationAddResult.InvalidData()
+      var result = LocationModifyResult.InvalidData()
       if (!isValidGeo(location.geoLat))
         result = result.withInvalidGeoLat
       if (!isValidGeo(location.geoLon))

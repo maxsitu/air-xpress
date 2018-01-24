@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import fetch from '../fetch';
-import {LOCATION_PAGE_LOADED, LOCATION_PAGE_UNLOADED} from "../constants/actionTypes";
+import {LOCATION_LIST_PAGE_LOADED, LOCATION_LIST_PAGE_UNLOADED} from "../constants/actionTypes";
 import LocationPreview from './LocationPreview';
 
 const mapStateToProps = state => ({
@@ -9,8 +9,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onLoad: payload => dispatch({type: LOCATION_PAGE_LOADED, payload}),
-  onUnLoad: () => dispatch({type: LOCATION_PAGE_UNLOADED})
+  onLoad: payload => dispatch({type: LOCATION_LIST_PAGE_LOADED, payload}),
+  onUnLoad: () => dispatch({type: LOCATION_LIST_PAGE_UNLOADED})
 });
 
 class LocationList extends React.Component {

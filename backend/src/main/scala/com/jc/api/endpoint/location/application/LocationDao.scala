@@ -18,7 +18,7 @@ class LocationDao (protected val database: SqlDatabase)(implicit val ec: Executi
   def add(loc: Location): Future[LocationId] =
     db.run((locations returning locations.map(_.id)) += loc)
 
-  def update(loc: Location) = {
+  def update(loc: Location): Future[Int] = {
     val q = for {l <- locations if l.id === loc.id} yield (l.code, l.name, l.geoLat, l.geoLon)
     db.run(q.update(loc.code, loc.name, loc.geoLat, loc.geoLon))
   }

@@ -14,7 +14,8 @@ import {
   // PROFILE_FAVORITES_PAGE_UNLOADED,
   // SETTINGS_PAGE_UNLOADED,
   LOGIN_PAGE_UNLOADED,
-  REGISTER_PAGE_UNLOADED
+  REGISTER_PAGE_UNLOADED,
+  LOCATION_EDITOR_PAGE_LOADED, LOCATION_SUBMITTED, LOCATION_PREVIEW_CLICKED
 } from '../constants/actionTypes';
 import Cookies from 'universal-cookie';
 
@@ -42,6 +43,10 @@ export default (state = defaultState, action) => {
     // case ARTICLE_SUBMITTED:
     //   const redirectUrl = `/article/${action.payload.article.slug}`;
     //   return { ...state, redirectTo: redirectUrl };
+    case LOCATION_SUBMITTED:
+      return { ...state, redirectTo: `/`};
+    case LOCATION_PREVIEW_CLICKED:
+      return { ...state, redirectTo: `/locationEditor/${action.payload}`};
     case SETTINGS_SAVED:
       return {
         ...state,
@@ -60,7 +65,7 @@ export default (state = defaultState, action) => {
     //   return { ...state, redirectTo: '/' };
     // case ARTICLE_PAGE_UNLOADED:
     // case EDITOR_PAGE_UNLOADED:
-    case HOME_PAGE_UNLOADED:
+    case LOCATION_EDITOR_PAGE_LOADED:
     case PROFILE_PAGE_UNLOADED:
     // case PROFILE_FAVORITES_PAGE_UNLOADED:
     // case SETTINGS_PAGE_UNLOADED:

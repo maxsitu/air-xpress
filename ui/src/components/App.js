@@ -17,6 +17,7 @@ import { store } from '../store';
 import { push } from 'react-router-redux';
 import Cookies from 'universal-cookie';
 import LocationList from "./LocationList";
+import LocationEditor from "./LocationEditor";
 
 const mapStateToProps = state => {
   return {
@@ -69,7 +70,8 @@ class App extends React.Component {
             {/*<Route path="/article/:id" component={Article} />*/}
             <Route path="/settings" component={Settings} />
             <Route path="/locations" component={LocationList}/>
-            <Route path="/addLocation" component={null}/>
+            <Route path="/locationEditor/:locationId" component={LocationEditor}/>
+            <Route path="/locationCreator" component={LocationEditor}/>
             {/*<Route path="/@:username/favorites" component={ProfileFavorites} />*/}
             {/*<Route path="/@:username" component={Profile} />*/}
           </Switch>

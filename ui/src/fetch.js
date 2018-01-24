@@ -102,7 +102,16 @@ class LocationFetch extends SameOriginFetch {
       name,
       geoLat,
       geoLon
-    }).then(responseText)
+    }).then(responseText);
+  }
+
+  async update(id, code, name, geoLat, geoLon) {
+    return await this.put(`/location/id/${id}`, null, {
+      code,
+      name,
+      geoLat,
+      geoLon
+    }).then(responseText);
   }
 }
 

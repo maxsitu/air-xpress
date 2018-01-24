@@ -10,6 +10,7 @@ import home from './reducers/home';
 // import profile from './reducers/profile';
 import settings from './reducers/settings';
 import locationList from './reducers/locationList';
+import locationEditor from './reducers/locationEditor';
 
 export default combineReducers({
   // article,
@@ -21,5 +22,6 @@ export default combineReducers({
   // profile,
   settings,
   locationList,
+  locationEditor,
   router: routerReducer
 });
