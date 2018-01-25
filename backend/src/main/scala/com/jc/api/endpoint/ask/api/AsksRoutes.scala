@@ -22,7 +22,7 @@ trait AsksRoutes extends RoutesSupport with StrictLogging with SessionSupport{
   implicit val providerAsksCb = CanBeSerialized[Seq[ProviderAsk]]
 
   val providerAsksRoutes = pathPrefix("providerAsk") {
-    put {
+    post {
       userIdFromSession { userId =>
         entity(as[BasicProviderAskData]) { in =>
           logger.info(s"provider ask: $in")

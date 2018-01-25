@@ -1,0 +1,33 @@
+.location-preview {
+  display: -webkit-flex;
+  display: -ms-flex;
+  display: flex;
+  max-width: 600px;
+  min-width: 300px;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-justify-content: space-between;
+  justify-content: space-between; }
+  .location-preview-fields {
+    color: white;
+    font-size: large;
+    background-color: powderblue;
+    display: -webkit-flex;
+    display: -ms-flex;
+    display: flex;
+    -webkit-flex: 3;
+    -ms-flex: 3;
+    flex: 3;
+    -webkit-align-items: center;
+    align-items: center; }
+    .location-preview-fields:hover {
+      background-color: dodgerblue; }
+    .location-preview-fields span {
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      text-align: center; }
+  .location-preview-map {
+    flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1; }

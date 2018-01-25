@@ -8,6 +8,21 @@ import {
   LOCATION_EDITOR_PAGE_UNLOADED,
   UPDATE_FIELD_LOCATION_EDITOR
 } from '../constants/actionTypes';
+import {withGoogleMap, GoogleMap, Marker} from "react-google-maps";
+
+const LocationMap = withGoogleMap((props) => {
+  const geoLat = parseFloat(props.geoLat);
+  const geoLon = parseFloat(props.geoLon);
+  return  <GoogleMap
+    defaultZoom={props.zoomSize}
+    center={{lat: geoLat, lng: geoLon}}
+    defaultOptions={
+      {fullscreenControl: false}
+    }
+  >
+    {props.isMarkerShown && <Marker position={{lat: geoLat, lng: geoLon}}/>}
+  </GoogleMap>
+});
 
 const mapStateToProps = state => ({
   ...state.locationEditor
@@ -77,6 +92,16 @@ class Editor extends React.Component {
 
               <ListErrors errors={this.props.errors}></ListErrors>
 
+              <LocationMap
+                zoomSize={12}
+                geoLat={this.props.geoLat || 0}
+                geoLon={this.props.geoLon || 0}
+                isMarkerShown={true}
+                loadingElement={<div style={{ height: `100%` }} />}
+                containerElement={<div style={{ height: `200px`, width: `100%` }} />}
+                mapElement={<div style={{ height: `100%` }} />}
+              >
+              </LocationMap>
               <form>
                 <fieldset>
 

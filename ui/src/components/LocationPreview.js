@@ -8,6 +8,10 @@ const LocationMap = withGoogleMap((props) =>
   <GoogleMap
     defaultZoom={props.zoomSize}
     defaultCenter={{lat: props.location.geoLat, lng: props.location.geoLon}}
+    center={{lat: props.location.geoLat, lng: props.location.geoLon}}
+    defaultOptions={
+      {fullscreenControl: false}
+    }
   >
     {props.isMarkerShown && <Marker position={{lat: props.location.geoLat, lng: props.location.geoLon}}/>}
   </GoogleMap>
