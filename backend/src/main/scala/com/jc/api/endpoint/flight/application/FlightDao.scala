@@ -10,7 +10,6 @@ import com.jc.api.endpoint.location.LocationId
 import com.jc.api.endpoint.order.OrderId
 import com.jc.api.endpoint.user.UserId
 import com.jc.api.model.{FlightOrder, FlightPlan, FlightStep}
-import com.jc.api.schema.SqlAccountServiceSchema
 
 import scala.concurrent.{ExecutionContext, Future}
 

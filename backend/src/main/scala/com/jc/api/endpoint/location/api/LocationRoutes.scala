@@ -24,8 +24,12 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
           case Right(_) => completeOk
           case Left(result) => result match {
             case invalid: LocationModifyResult.InvalidData => complete(StatusCodes.BadRequest, invalid)
-            case LocationModifyResult.LocationExists(code) => complete(StatusCodes.Conflict, s"Location code $code exists already!")
-            case LocationModifyResult.Success  => complete(StatusCodes.InternalServerError, "This part of code shouldn't reach")
+            case LocationModifyResult.LocationExists(code) => complete(
+              StatusCodes.Conflict, s"Location code $code exists already!"
+            )
+            case LocationModifyResult.Success => complete(
+              StatusCodes.InternalServerError, "This part of code shouldn't reach"
+            )
           }
         }
       }
@@ -35,34 +39,47 @@ trait LocationRoutes extends RoutesSupport with StrictLogging with SessionSuppor
         entity(as[LocationInput]) { loc =>
           onSuccess(locationService.updateLocation(locationId, loc.code, loc.name, loc.geoLat, loc.geoLon)) {
             case Right(_) => completeOk
-            case Left(result) => result match  {
+            case Left(result) => result match {
               case invalid: LocationModifyResult.InvalidData => complete(StatusCodes.BadRequest, invalid)
-              case LocationModifyResult.LocationNotExists(id) => complete(StatusCodes.Conflict, s"location id $id doesn't exist!")
+              case LocationModifyResult.LocationNotExists(id) => complete(
+                StatusCodes.Conflict, s"location id $id doesn't exist!"
+              )
             }
           }
         }
       }
-    } ~
-    get {
+    } ~ get {
       pathEnd {
         onSuccess(locationService.findAll()) { locations =>
           complete(locations)
         }
       } ~
-      path("id" / LongNumber) { locationId =>
-        onSuccess(locationService.findByLocationId(locationId)) {
-          case Some(location) => complete(location)
-          case _  => complete(StatusCodes.NotFound)
+        path("id" / LongNumber) { locationId =>
+          onSuccess(locationService.findByLocationId(locationId)) {
+            case Some(location) => complete(location)
+            case _ => complete(StatusCodes.NotFound)
+          }
+        } ~
+        path("code" / Segment) { locationCode =>
+          onSuccess(locationService.findByLocationCode(locationCode)) {
+            case Some(location) => complete(location)
+            case _ => complete(StatusCodes.NotFound)
+          }
+        } ~
+        path("codePrefix" / Segment) { locationCodePrefix =>
+          onSuccess(locationService.findByLocationCodePrefix(locationCodePrefix)) {
+            case locations: Seq[Location] => complete(locations)
+            case _ => complete(StatusCodes.NotFound)
+          }
+        } ~
+        path("namePrefix" / Segment) { locationNamePrefix =>
+          onSuccess(locationService.findByLocationNamePrefix(locationNamePrefix)) {
+            case locations: Seq[Location] => complete(locations)
+            case _ => complete(StatusCodes.NotFound)
+          }
         }
-      } ~
-      path("code" / Segment) { locationCode =>
-        onSuccess(locationService.findByLocationCode(locationCode)) {
-          case Some(location) => complete(location)
-          case _  => complete(StatusCodes.NotFound)
-        }
-      }
     }
   }
 }
 
-case class LocationInput (code: String, name: String, geoLat: Double, geoLon: Double)
+case class LocationInput(code: String, name: String, geoLat: Double, geoLon: Double)

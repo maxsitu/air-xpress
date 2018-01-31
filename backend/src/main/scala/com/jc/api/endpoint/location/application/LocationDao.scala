@@ -5,7 +5,6 @@ import com.jc.api.endpoint.location.LocationId
 import com.jc.api.model.Location
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 /**
   * Created by walle on 7/14/17.
@@ -31,6 +30,12 @@ class LocationDao (protected val database: SqlDatabase)(implicit val ec: Executi
 
   def findByCode(code: String): Future[Option[Location]] =
     db.run(locations.filter(_.code === code).result.headOption)
+
+  def findByCodePrefix(codePrefix: String): Future[Seq[Location]] =
+    db.run(locations.filter(_.code like s"${codePrefix}%").result)
+
+  def findByNamePrefix(namePrefix: String): Future[Seq[Location]] =
+    db.run(locations.filter(_.name like s"${namePrefix}%").result)
 
   def delete(id: LocationId): Future[Int] =
     db.run(locations.filter(_.id === id).delete)

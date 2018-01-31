@@ -17,6 +17,11 @@ export default (state = {}, action) => {
         geoLat: action.payload ? action.payload.geoLat : 0,
         geoLon: action.payload ? action.payload.geoLon : 0
       };
+    case LOCATION_SUBMITTED:
+      return {
+        ...state,
+        inProgress: false
+      };
     case LOCATION_EDITOR_PAGE_UNLOADED:
       return {};
     case UPDATE_FIELD_LOCATION_EDITOR:

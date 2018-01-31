@@ -677,12 +677,12 @@ trait SqlAccountServiceSchema {
     e1: GR[Option[Long]],
     e2: GR[java.util.UUID],
     e3: GR[Int], e4: GR[Double],
-    e5: GR[Option[Boolean]],
+    e5: GR[Boolean],
     e6: GR[OffsetDateTime]
   ): GR[ProviderAsk] = GR { prs =>
       import prs._
       ProviderAsk.tupled(
-        (<<[Long], <<?[Long], <<[java.util.UUID], <<[Int], <<[Double], <<?[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
+        (<<[Long], <<?[Long], <<[java.util.UUID], <<[Int], <<[Double], <<[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
       )
   }
 
@@ -691,9 +691,9 @@ trait SqlAccountServiceSchema {
     def * = (id, planId, providerId, seats, price, active, createdOn, modifiedOn) <> (ProviderAsk.tupled, ProviderAsk.unapply)
 
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), planId, Rep.Some(providerId), Rep.Some(seats), Rep.Some(price), active, Rep.Some(createdOn
+    def ? = (Rep.Some(id), planId, Rep.Some(providerId), Rep.Some(seats), Rep.Some(price), Rep.Some(active), Rep.Some(createdOn
     ), Rep.Some(modifiedOn)).shaped.<>(
-      { r => import r._; _1.map(_ => ProviderAsk.tupled((_1.get, _2, _3.get, _4.get, _5.get, _6, _7.get, _8.get))) },
+      { r => import r._; _1.map(_ => ProviderAsk.tupled((_1.get, _2, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get))) },
       (_: Any) => throw new Exception("Inserting into ? projection not supported.")
     )
 
@@ -708,7 +708,7 @@ trait SqlAccountServiceSchema {
     /** Database column price SqlType(float8) */
     val price: Rep[Double] = column[Double]("price")
     /** Database column active SqlType(bool), Default(Some(true)) */
-    val active: Rep[Option[Boolean]] = column[Option[Boolean]]("active", O.Default(Some(true)))
+    val active: Rep[Boolean] = column[Boolean]("active", O.Default(true))
     /** Database column created_on SqlType(OffsetDateTime) */
     val createdOn: Rep[OffsetDateTime] = column[OffsetDateTime]("created_on")
     /** Database column modified_on SqlType(OffsetDateTime) */

@@ -9,6 +9,8 @@
     "react-scripts": "0.9.5"
   },
   "dependencies": {
+    "@blueprintjs/core": "^1.35.2",
+    "@blueprintjs/datetime": "^1.25.2",
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",
     "prop-types": "^15.5.10",
@@ -22,6 +24,7 @@
     "react-router-bootstrap": "^0.24.4",
     "react-router-dom": "^4.1.2",
     "react-router-redux": "^5.0.0-alpha.8",
+    "react-select": "^1.2.1",
     "redux": "^3.6.0",
     "redux-devtools-extension": "^2.13.2",
     "redux-form": "^6.6.3",

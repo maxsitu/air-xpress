@@ -60,6 +60,12 @@ class LocationService (
   def findByLocationCode(code: String): Future[Option[Location]] =
     locationDao.findByCode(code)
 
+  def findByLocationCodePrefix(codePrefix: String): Future[Seq[Location]] =
+    locationDao.findByCodePrefix(codePrefix)
+
+  def findByLocationNamePrefix(namePrefix: String): Future[Seq[Location]] =
+    locationDao.findByNamePrefix(namePrefix)
+
   def findAll(): Future[Seq[Location]] =
     locationDao.findAll()
 }

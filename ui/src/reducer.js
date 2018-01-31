@@ -11,6 +11,8 @@ import home from './reducers/home';
 import settings from './reducers/settings';
 import locationList from './reducers/locationList';
 import locationEditor from './reducers/locationEditor';
+import planeEditor from './reducers/planeEditor';
+import flightPlanEditor from './reducers/flighPlanEditor';
 
 export default combineReducers({
   // article,
@@ -23,5 +25,7 @@ export default combineReducers({
   settings,
   locationList,
   locationEditor,
+  planeEditor,
+  flightPlanEditor,
   router: routerReducer
 });

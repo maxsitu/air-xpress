@@ -25,4 +25,4 @@ case class ConsumerAsk(id: AskId, planId: Option[Long] = None, consumerId: UserI
   *  @param active Database column active SqlType(bool), Default(Some(true))
   *  @param createdOn Database column created_on SqlType(OffsetDateTime)
   *  @param modifiedOn Database column modified_on SqlType(OffsetDateTime) */
-case class ProviderAsk(id: AskId, planId: Option[Long] = None, providerId: UserId, seats: Int, price: Double, active: Option[Boolean] = Some(true), createdOn: OffsetDateTime, modifiedOn: OffsetDateTime)
+case class ProviderAsk(id: AskId, planId: Option[Long] = None, providerId: UserId, seats: Int, price: Double, active: Boolean = true, createdOn: OffsetDateTime, modifiedOn: OffsetDateTime)

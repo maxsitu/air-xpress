@@ -115,11 +115,39 @@ class LocationFetch extends SameOriginFetch {
   }
 }
 
+class PlaneFetch extends SameOriginFetch {
+  async findByRange(offset, limit) {
+    return await this.get(`/planes?offset=${offset}&limit=${limit}`).then(responseJson);
+  }
+
+  async findById(id) {
+    return await this.get(`/planes/planeId/${id}`).then(responseJson);
+  }
+
+  async findByOwnerId(ownerId) {
+    return await this.get(`/planes/ownerId/${ownerId}`).then(responseJson);
+  }
+
+  async create(nNo, manufacturerName, serialNo, model, pilotSeats, minPilot, customerSeats) {
+    return await this.post('/planes', null, {
+      nNo,
+      manufacturerName,
+      serialNo,
+      model,
+      pilotSeats,
+      minPilot,
+      customerSeats
+    });
+  }
+}
+
 const Auth = new AuthFetch();
 const Location = new LocationFetch();
+const Plane = new PlaneFetch();
 
 export default {
   Auth,
   Location,
+  Plane,
   setToken: _token => { token = _token; }
 };

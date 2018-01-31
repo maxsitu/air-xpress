@@ -10,8 +10,6 @@ import com.jc.api.endpoint.bid.BidId
 import com.jc.api.endpoint.user.UserId
 import com.jc.api.endpoint.user.application.SqlUserSchema
 import com.jc.api.model.{ConsumerBid, ProviderAsk, ProviderBid}
-import com.jc.api.schema.SqlAccountServiceSchema
-import slick.model.ForeignKeyAction
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -49,7 +47,7 @@ class BidDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
     findConsumerBidWhere(bid => bid.providerAskId === providerAskId && bid.confirmed === false)
 
   def setProviderBidStatus(bidId: BidId, isActive: Boolean): Future[Unit] =
-    db.run(providerAsks.filter(_.id === bidId).map(b => (b.active, b.modifiedOn)).update((Some(isActive), Utils.now()))).map(_ => ())
+    db.run(providerAsks.filter(_.id === bidId).map(b => (b.active, b.modifiedOn)).update((isActive, Utils.now()))).map(_ => ())
   def setConsumerBidStatus(bidId: BidId, isActive: Boolean): Future[Unit] =
     db.run(consumerAsks.filter(_.id === bidId).map(b => (b.active, b.modifiedOn)).update((Some(isActive), Utils.now()))).map(_ => ())
 

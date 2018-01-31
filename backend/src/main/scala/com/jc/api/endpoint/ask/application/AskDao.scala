@@ -39,7 +39,7 @@ class AskDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
             0, planId, step.fromLocationId, step.toLocationId, step.fromTime, step.toTime
           )))
           askId <- providerAsks returning providerAsks.map(_.id) += ProviderAsk(
-            0, Some(planId), providerId, providerAsk.seats, providerAsk.price, None,
+            0, Some(planId), providerId, providerAsk.seats, providerAsk.price, true,
             Instant.now().atOffset(ZoneOffset.UTC), Instant.now().atOffset(ZoneOffset.UTC)
           )
         } yield askId
@@ -83,7 +83,7 @@ class AskDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
     db.run(
       providerAsks.filter(_.id === askId)
         .map(a => (a.active, a.modifiedOn))
-        .update((Some(isActive), Utils.now()))
+        .update((isActive, Utils.now()))
     ).map(_ => ())
 
   def setConsumerAskStatus(askId: AskId, isActive: Boolean): Future[Unit] =
@@ -153,12 +153,12 @@ trait SqlAskSchema extends SqlFlightSchema with SqlUserSchema {
     e1: GR[Option[Long]],
     e2: GR[java.util.UUID],
     e3: GR[Int], e4: GR[Double],
-    e5: GR[Option[Boolean]],
+    e5: GR[Boolean],
     e6: GR[OffsetDateTime]
   ): GR[ProviderAsk] = GR { prs =>
     import prs._
     ProviderAsk.tupled(
-      (<<[Long], <<?[Long], <<[java.util.UUID], <<[Int], <<[Double], <<?[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
+      (<<[Long], <<?[Long], <<[java.util.UUID], <<[Int], <<[Double], <<[Boolean], <<[OffsetDateTime], <<[OffsetDateTime])
     )
   }
 
@@ -184,7 +184,7 @@ trait SqlAskSchema extends SqlFlightSchema with SqlUserSchema {
     /** Database column price SqlType(float8) */
     val price: Rep[Double] = column[Double]("price")
     /** Database column active SqlType(bool), Default(Some(true)) */
-    val active: Rep[Option[Boolean]] = column[Option[Boolean]]("active", O.Default(Some(true)))
+    val active: Rep[Boolean] = column[Boolean]("active", O.Default(true))
     /** Database column created_on SqlType(OffsetDateTime) */
     val createdOn: Rep[OffsetDateTime] = column[OffsetDateTime]("created_on")
     /** Database column modified_on SqlType(OffsetDateTime) */

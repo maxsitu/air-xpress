@@ -2,7 +2,6 @@ package com.jc.api.endpoint.user.application
 
 import com.jc.api.common.sql.SqlDatabase
 import com.jc.api.model.RememberMeToken
-import com.jc.api.schema.{SqlAccountServiceSchema}
 
 import scala.concurrent.{ExecutionContext, Future}
 

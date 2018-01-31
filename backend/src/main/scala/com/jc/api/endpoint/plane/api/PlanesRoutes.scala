@@ -1,7 +1,6 @@
 package com.jc.api.endpoint.plane.api
 
-import java.util.UUID
-
+import akka.http.scaladsl.model.StatusCodes
 import com.typesafe.scalalogging.StrictLogging
 import akka.http.scaladsl.server.Directives._
 import com.jc.api.common.api.RoutesSupport
@@ -21,13 +20,24 @@ trait PlanesRoutes extends RoutesSupport with StrictLogging with SessionSupport{
   implicit val basicPlaneDataCbs = CanBeSerialized[BasicPlaneData]
 
   val planesRoutes = pathPrefix("planes") {
-    put {
+    post {
       userIdFromSession{ userId =>
         entity(as[BasicPlaneData]) { planeInput =>
           onSuccess(planeService.add(planeInput.asPlane(userId))) { _ =>
             completeOk
           }
         }
+      }
+    } ~
+    put {
+      path("id" / IntNumber) { planeId =>
+        entity(as[BasicPlaneData]) { p =>
+          onSuccess(planeService.update(planeId, p.nNo, p.manufacturerName, p.serialNo, p.model, p.pilotSeats, p.minPilot, p.customerSeats)) {
+            case _: Int => completeOk
+            case _ => complete(StatusCodes.InternalServerError)
+          }
+        }
+
       }
     } ~
     get {

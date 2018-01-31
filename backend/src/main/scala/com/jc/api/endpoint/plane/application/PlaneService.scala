@@ -14,6 +14,13 @@ class PlaneService(
 )(implicit ec: ExecutionContext){
 
   def add(plane: Plane): Future[PlaneId] = planeDao.add(plane)
+  def update(
+    id: PlaneId, nNo: String, manufacturerName: String, serialNo: String,
+    model: String, pilotSeats: Int, minPilot: Int, customerSeats: Int
+  ): Future[Int] = {
+    planeDao.update(id, nNo, manufacturerName, serialNo, model, pilotSeats, minPilot, customerSeats)
+  }
+
   def findById(planeId: PlaneId): Future[Option[Plane]] = planeDao.findById(planeId)
   def findByOwnerId(ownerId: UserId): Future[Seq[Plane]] = planeDao.findByOwnerId(ownerId)
   def count(): Future[Int] = planeDao.count()

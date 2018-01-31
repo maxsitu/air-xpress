@@ -5,8 +5,6 @@ import java.time.OffsetDateTime
 import com.jc.api.common.sql.SqlDatabase
 import com.jc.api.endpoint.user.{UserId, UserRoleId, UserStatusId}
 import com.jc.api.model._
-import com.jc.api.schema.SqlAccountServiceSchema
-import slick.model.ForeignKeyAction
 
 import scala.concurrent.{ExecutionContext, Future}
 

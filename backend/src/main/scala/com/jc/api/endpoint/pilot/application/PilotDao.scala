@@ -5,7 +5,6 @@ import com.jc.api.endpoint.pilot.PilotId
 import com.jc.api.endpoint.user.UserId
 import com.jc.api.endpoint.user.application.SqlUserSchema
 import com.jc.api.model.Pilot
-import com.jc.api.schema.SqlAccountServiceSchema
 
 import scala.concurrent.{ExecutionContext, Future}
 

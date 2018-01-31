@@ -5,7 +5,6 @@ import com.jc.api.endpoint.plane.PlaneId
 import com.jc.api.endpoint.user.UserId
 import com.jc.api.endpoint.user.application.SqlUserSchema
 import com.jc.api.model.Plane
-import com.jc.api.schema.SqlAccountServiceSchema
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -17,6 +16,12 @@ class PlaneDao(protected val database: SqlDatabase)(implicit val ec: ExecutionCo
   private def findWhere(condition: Planes => Rep[Boolean]) = db.run(planes.filter(condition).result)
 
   def add(plane: Plane): Future[PlaneId] = db.run((planes returning planes.map(_.id)) += plane)
+  def update(id: PlaneId, nNo: String, manufacturerName: String, serialNo: String, model: String, pilotSeats: Int, minPilot: Int, customerSeats: Int): Future[Int] = db.run(
+    planes.filter(_.id=== id)
+      .map(p =>
+        (p.nNo, p.manufacturerName, p.serialNo, p.model, p.pilotSeats, p.minPilot, p.customerSeats)
+      ).update(nNo, manufacturerName, serialNo, model, pilotSeats, minPilot, customerSeats)
+  )
   def findById(orderId: PlaneId): Future[Option[Plane]] = findOneWhere(_.id === orderId)
   def findByOwnerId(ownerId: UserId): Future[Seq[Plane]] = findWhere(_.ownerId === ownerId)
   def findByNNumber(nNum: String): Future[Option[Plane]] = findOneWhere(_.nNo === nNum)
