@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {Async} from 'react-select';
+import { DateTimePicker } from "@blueprintjs/datetime";
 import 'react-select/dist/react-select.css';
 import {
   FLIGHT_PLAN_PAGE_UNLOADED,
@@ -24,10 +25,14 @@ class FlightStep extends React.Component {
   constructor () {
     super();
 
-    this.onAddFlightStep = evt =>
+    this.onAddFlightStep = evt => {
+      evt.preventDefault();
       this.props.onAddFlightStep();
-    this.onRemoveFlightStep = evt =>
+    };
+    this.onRemoveFlightStep = evt => {
+      evt.preventDefault();
       this.props.onRemoveFlightStep();
+    }
   }
 
   handleChange (idx, fieldName) {
@@ -51,8 +56,14 @@ class FlightStep extends React.Component {
       return null;
     }
 
-    const flightStep = flightSteps[idx] || {};
-    const isLastOfList = (idx === (flightSteps.length - 1));
+    const flightStep = flightSteps[idx] || {},
+      isLastOfList = (idx === (flightSteps.length - 1)),
+      isShowRemoveDestination = isLastOfList && (idx >= minLimit),
+      isShowAddDestination = isLastOfList && (idx >= minLimit-1)
+    ;
+
+    const now = new Date();
+
 
     return (
       <fieldset>
@@ -65,6 +76,7 @@ class FlightStep extends React.Component {
             onChange={this.handleChange(idx, 'from_loc')}
           />
         </fieldset>
+
         <fieldset>
           <span>To: </span>
           <Async
@@ -75,16 +87,24 @@ class FlightStep extends React.Component {
           />
         </fieldset>
 
-        {
-          isLastOfList && (idx >= minLimit) && (
-            <span onClick={this.onRemoveFlightStep}>Remove destination |</span>
-          )
-        }
-        {
-          isLastOfList && (idx >= minLimit-1) && (
-            <span onClick={this.onAddFlightStep}>Add destination</span>
-          )
-        }
+        <fieldset>
+          <DateTimePicker format={"YYYY-MM-DD HH:mm:ss"} minDate={now}/>
+        </fieldset>
+
+        <p>
+          {
+            isShowRemoveDestination && (
+              <a href="" onClick={this.onRemoveFlightStep}>Remove destination </a>
+            )
+          }
+          <span hidden={!isShowRemoveDestination}>|</span>
+          {
+            isShowAddDestination && (
+              <a href="" onClick={this.onAddFlightStep}>Add destination</a>
+            )
+          }
+        </p>
+
       </fieldset>
     );
   }
