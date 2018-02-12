@@ -42,14 +42,26 @@ const LoggedInView = props => {
         </li>
 
         <li className="nav-item">
-          <Link to="/editor" className="nav-link">
-            <i className="ion-compose"></i>&nbsp;New Post
+          <Link to="/flightPlan" className="nav-link">
+            <i className="ion-plane"></i>&nbsp;Book Flight
           </Link>
         </li>
 
         <li className="nav-item">
           <Link to="/settings" className="nav-link">
             <i className="ion-gear-a"></i>&nbsp;Settings
+          </Link>
+        </li>
+
+        <li className="nav-item">
+          <Link to="/locations" className="nav-link">
+            <i className="ion-ios-world-outline"></i>&nbsp;Airports
+          </Link>
+        </li>
+
+        <li className="nav-item">
+          <Link to="/locationEditor" className="nav-link">
+            <i className="ion-ios-world-outline"></i>&nbsp;Add Airport
           </Link>
         </li>
 

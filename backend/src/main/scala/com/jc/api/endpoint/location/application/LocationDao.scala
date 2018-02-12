@@ -35,7 +35,7 @@ class LocationDao (protected val database: SqlDatabase)(implicit val ec: Executi
     db.run(locations.filter(_.code like s"${codePrefix}%").result)
 
   def findByNamePrefix(namePrefix: String): Future[Seq[Location]] =
-    db.run(locations.filter(_.name like s"${namePrefix}%").result)
+    db.run(locations.filter(_.name.toLowerCase like s"${namePrefix}%").result)
 
   def delete(id: LocationId): Future[Int] =
     db.run(locations.filter(_.id === id).delete)

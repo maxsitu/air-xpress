@@ -96,6 +96,11 @@ class LocationFetch extends SameOriginFetch {
     return await this.get(`/location/code/${code}`).then(responseJson);
   }
 
+  async findByNamePrefix(namePrefix) {
+    namePrefix = namePrefix || '_';
+    return await this.get(`/location/namePrefix/${namePrefix}`).then(responseJson);
+  }
+
   async create(code, name, geoLat, geoLon) {
     return await this.post(`/location`, null, {
       code,

@@ -14,12 +14,13 @@ val scalaLoggingVersion = "3.5.0"
 val akkaV               = "2.5.6"
 val akkaHttpVersion     = "10.0.10"
 val slickVersion        = "3.2.1"
+val googleVersion       = "1.23.0"
 
 lazy val updateNpm = taskKey[Unit]("Update npm")
 lazy val npmTask   = inputKey[Unit]("Run npm with arguments")
 
 lazy val commonSettings = Seq(
-  name := """jt-api-service""",
+  name := """air-xpress""",
   version := "2.1",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq(scalaVersion.value, "2.11.8"),
@@ -74,9 +75,19 @@ val postgres      = "org.postgresql" % "postgresql" % "9.4.1208"
 val flyway        = "org.flywaydb" % "flyway-core" % "4.0"
 val slickStack    = Seq(slick, slickCodeGen, h2, postgres, slickHikari, flyway)
 
-val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
+// Google API
+val googleApiClient   = "com.google.api-client" % "google-api-client" % googleVersion
+val googleApiClientGson = "com.google.api-client" % "google-api-client-gson" % googleVersion
+val googleApiClientJava6 = "com.google.api-client" % "google-api-client-java6" % googleVersion
+val googleApiClientProtobuf = "com.google.api-client" % "google-api-client-protobuf" % googleVersion
+val googleOauthClient = "com.google.oauth-client" % "google-oauth-client" % googleVersion
+val googleApiServicesOauth = "com.google.apis" % "google-api-services-oauth2" % "v2-rev133-1.23.0"
+val googleStack       = Seq(googleApiClient, googleApiClientGson, googleApiClientJava6, googleApiClientProtobuf, googleOauthClient, googleApiServicesOauth)
 
+
+val typesafeConfig = "com.typesafe" % "config" % "1.3.1"
 val javaxMailSun = "com.sun.mail" % "javax.mail" % "1.6.0"
+
 
 val scalatest         = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 val unitTestingStack  = Seq(scalatest)
@@ -103,7 +114,7 @@ lazy val backend = (project in file("backend"))
     commonSettings,
     Revolver.settings,
     RenameProject.settings,
-    libraryDependencies ++= unitTestingStack ++ loggingStack ++ akkaStack ++ slickStack ++ Seq(
+    libraryDependencies ++= unitTestingStack ++ loggingStack ++ akkaStack ++ slickStack ++ googleStack ++ Seq(
       javaxMailSun,
       typesafeConfig,
       swagger,
