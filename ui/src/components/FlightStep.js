@@ -2,12 +2,16 @@ import React from "react";
 import fetch from "../fetch";
 import moment from "moment/moment";
 import {Async} from 'react-select';
-import DatetimeRangePicker from 'react-datetime-range-picker';
+import DateRangePickerWrapper from './daterange/DateRangePickerWrapper';
+
+const FIELD_FROM_LOCATION = 'from_loc';
+const FIELD_TO_LOCATION = 'to_loc';
+const FIELD_TIME_RANGE = 'time_range';
 
 class FlightStep extends React.Component {
 
-  constructor () {
-    super();
+  constructor (props) {
+    super(props);
 
     this.onAddFlightStep = evt => {
       evt.preventDefault();
@@ -16,30 +20,36 @@ class FlightStep extends React.Component {
     this.onRemoveFlightStep = evt => {
       evt.preventDefault();
       this.props.onRemoveFlightStep();
-    }
+    };
+
+    let focusedInput = null;
+    this.state = {
+      focusedInput,
+      startDate: null,
+      endDate: null
+    };
   }
 
   handleChange (idx, fieldName) {
-
     let __this = this;
     const onUpdateField = this.props.onUpdateField;
     return function (selectedOption) {
       switch (fieldName) {
-        case 'from_loc':
+        case FIELD_FROM_LOCATION:
           __this.refs[`to_loc_${idx}`] && __this.refs[`to_loc_${idx}`].loadOptions();
+          onUpdateField(idx, fieldName, selectedOption.value);
           break;
-        case 'to_loc':
+        case FIELD_TO_LOCATION:
           __this.refs[`from_loc_${idx}`] && __this.refs[`from_loc_${idx}`].loadOptions();
+          onUpdateField(idx, fieldName, selectedOption.value);
+          break;
+        case FIELD_TIME_RANGE:
+          onUpdateField(idx, fieldName, [selectedOption.startDate, selectedOption.endDate]);
           break;
         default:
           break;
       }
 
-      if (fieldName === 'time_range') {
-        onUpdateField(idx, fieldName, [selectedOption.start, selectedOption.end]);
-      } else {
-        onUpdateField(idx, fieldName, selectedOption.value);
-      }
       console.log(`Selected: ${selectedOption}`);
     }
 
@@ -117,7 +127,7 @@ class FlightStep extends React.Component {
             value={this.flightStep.from_loc}
             name={`${fieldPrefix}_from_loc_${idx}`}
             loadOptions={this.getFromOptions.bind(this)}
-            onChange={this.handleChange(idx, 'from_loc')}
+            onChange={this.handleChange(idx, FIELD_FROM_LOCATION)}
           />
         </fieldset>
 
@@ -129,20 +139,12 @@ class FlightStep extends React.Component {
             value={this.flightStep.to_loc}
             name={`${this.fieldPrefix}_to_loc_${idx}`}
             loadOptions={this.getToOptions.bind(this)}
-            onChange={this.handleChange(idx, 'to_loc')}
+            onChange={this.handleChange(idx, FIELD_TO_LOCATION)}
           />
         </fieldset>
 
         <fieldset>
-          {/*<DateRangeInput format={"YYYY-MM-DD HH:mm:ss"} minDate={now}/>*/}
-          <DatetimeRangePicker
-            startDate={this.flightStep.time_range && this.flightStep.time_range[0] || moment().toDate()}
-            endDate={this.flightStep.time_range && this.flightStep.time_range[1] || moment().toDate()}
-            dateFormat={"YYYY-MM-DD HH:mm:ss"}
-            isValidStartDate={ this.isValidStartDate.bind(this) }
-            isValidEndDate={ this.isValidEndDate.bind(this) }
-            onChange={this.handleChange(idx, 'time_range')}
-          />
+          <DateRangePickerWrapper onDatesChange={this.handleChange(idx, FIELD_TIME_RANGE)}/>
         </fieldset>
 
         <p>
