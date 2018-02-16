@@ -36,11 +36,11 @@ class FlightStep extends React.Component {
     return function (selectedOption) {
       switch (fieldName) {
         case FIELD_FROM_LOCATION:
-          __this.refs[`to_loc_${idx}`] && __this.refs[`to_loc_${idx}`].loadOptions();
+          __this.refs[`${FIELD_TO_LOCATION}_${idx}`] && __this.refs[`${FIELD_TO_LOCATION}_${idx}`].loadOptions();
           onUpdateField(idx, fieldName, selectedOption.value);
           break;
         case FIELD_TO_LOCATION:
-          __this.refs[`from_loc_${idx}`] && __this.refs[`from_loc_${idx}`].loadOptions();
+          __this.refs[`${FIELD_FROM_LOCATION}_${idx}`] && __this.refs[`${FIELD_FROM_LOCATION}_${idx}`].loadOptions();
           onUpdateField(idx, fieldName, selectedOption.value);
           break;
         case FIELD_TIME_RANGE:
@@ -55,78 +55,40 @@ class FlightStep extends React.Component {
 
   };
 
-  componentWillReceiveProps (nextProps) {
-    const idx = nextProps.idx;
-
-  }
-
-  getFromOptions (input) {
-    let flightStep = this.flightStep;
-    return fetch.Location.findByNamePrefix(input)
-      .then(function (locations) {
-        return {
-          options: locations.map(function (loc) {
-            return {
-              value: loc.code,
-              label: `${loc.name} (${loc.code})`,
-              disabled: (loc.code === flightStep.to_loc)
-            }
-          }),
-          complete: true
-        }
-      });
+  getLocationOptions (field) {
+    const flightStep = this.props.flightStep;
+    return (input) =>
+      fetch.Location.findByNamePrefix(input)
+        .then(function (locations) {
+          return {
+            options: locations.map(function (loc) {
+              return {
+                value: loc.code,
+                label: `${loc.name} (${loc.code})`,
+                disabled: (loc.code === flightStep[field])
+              }
+            }),
+            complete: true
+          }
+        });
   };
-
-  getToOptions (input) {
-    let flightStep = this.flightStep;
-    return fetch.Location.findByNamePrefix(input)
-      .then(function (locations) {
-        return {
-          options: locations.map(function (loc) {
-            return {
-              value: loc.code,
-              label: `${loc.name} (${loc.code})`,
-              disabled: (loc.code === flightStep.from_loc)
-            }
-          }),
-          complete: true
-        }
-      });
-  };
-
-  isValidStartDate(current) {
-    let now = moment();
-    return current.isAfter( now ) && (this.flightStep.time_range && current.isBefore(moment(this.flightStep.time_range[1])) || true);
-  }
-
-  isValidEndDate(current) {
-    let lastEndDate = moment().add(2, 'month');
-    return current.isBefore( lastEndDate ) && (this.flightStep.time_range && current.isAfter(moment(this.flightStep.time_range[0])) || true);
-  }
 
   render () {
-    const {flightSteps, fieldPrefix, idx, minLimit} = this.props;
+    const {flightStep, fieldPrefix, idx, minLimit, isLastOfList} = this.props;
 
-    if (!flightSteps) {
-      return null;
-    }
-
-    this.flightStep = flightSteps[idx] || {};
-    const isLastOfList = (idx === (flightSteps.length - 1)),
-      isShowRemoveDestination = isLastOfList && (idx >= minLimit),
-      isShowAddDestination = isLastOfList && (idx >= minLimit-1)
-    ;
+    const isShowRemoveDestination = isLastOfList && (idx >= minLimit),
+      isShowAddDestination = isLastOfList;
 
     return (
       <fieldset>
         <fieldset>
           <span>From: </span>
           <Async
-            ref={`from_loc_${idx}`}
+            ref={`${FIELD_FROM_LOCATION}_${idx}`}
             cache={false}
-            value={this.flightStep.from_loc}
-            name={`${fieldPrefix}_from_loc_${idx}`}
-            loadOptions={this.getFromOptions.bind(this)}
+            value={flightStep[FIELD_FROM_LOCATION]}
+            name={`${fieldPrefix}_${FIELD_FROM_LOCATION}_${idx}`}
+            loadOptions={this.getLocationOptions(FIELD_TO_LOCATION)}
             onChange={this.handleChange(idx, FIELD_FROM_LOCATION)}
           />
         </fieldset>
@@ -134,11 +96,11 @@ class FlightStep extends React.Component {
         <fieldset>
           <span>To: </span>
           <Async
-            ref={`to_loc_${idx}`}
+            ref={`${FIELD_TO_LOCATION}_${idx}`}
             cache={false}
-            value={this.flightStep.to_loc}
-            name={`${this.fieldPrefix}_to_loc_${idx}`}
-            loadOptions={this.getToOptions.bind(this)}
+            value={flightStep[FIELD_TO_LOCATION]}
+            name={`${this.fieldPrefix}_${FIELD_TO_LOCATION}_${idx}`}
+            loadOptions={this.getLocationOptions(FIELD_FROM_LOCATION)}
             onChange={this.handleChange(idx, FIELD_TO_LOCATION)}
           />
         </fieldset>
@@ -164,6 +126,6 @@ class FlightStep extends React.Component {
       </fieldset>
     );
   }
-};
+}
 
 export default FlightStep;

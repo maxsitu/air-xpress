@@ -70,7 +70,8 @@ class FlightPlan extends React.Component {
                     onUpdateField={this.props.onUpdateField}
                     onAddFlightStep={this.props.onAddFlightStep}
                     onRemoveFlightStep={this.props.onRemoveFlightStep}
-                    flightSteps={this.props.flightSteps}
+                    flightStep={this.props.flightSteps[idx]}
+                    isLastOfList={idx === (this.props.flightSteps.length - 1)}
                   />
                 </fieldset>)
               )
