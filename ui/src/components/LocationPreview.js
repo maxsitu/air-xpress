@@ -32,11 +32,11 @@ class LocationPreview  extends React.Component {
   render(){
     const props = this.props;
     return (
-      <div className="location-preview" onClick={this.clickHandler}>
-        <div className="location-preview-fields">
+      <div className="ax-location-preview" onClick={this.clickHandler}>
+        <div className="ax-location-preview-fields">
           <span>{props.location.name} ({props.location.code})</span>
         </div>
-        <div className="location-preview-map">
+        <div className="ax-location-preview-map">
           <LocationMap
             isMarkerShown={props.isMarkerShown}
             loadingElement={props.loadingElement}

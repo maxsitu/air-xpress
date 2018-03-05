@@ -243,18 +243,18 @@ trait SqlAccountServiceSchema {
     e2: GR[OffsetDateTime]): GR[FlightPlan] = GR { prs =>
       import prs._
     FlightPlan.tupled(
-        (<<[Long], <<[Int], <<[OffsetDateTime], <<[OffsetDateTime], <<[OffsetDateTime])
+        (<<[Long], <<[Int], <<[OffsetDateTime])
       )
   }
 
   /** Table description of table FLIGHT_PLANS. Objects of this class serve as prototypes for rows in queries. */
   class FlightPlans(_tableTag: Tag) extends profile.api.Table[FlightPlan](_tableTag, "FLIGHT_PLANS") {
-    def * = (id, passengerNum, startTime, endTime, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
+    def * = (id, passengerNum, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
 
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(passengerNum), Rep.Some(startTime), Rep.Some(endTime), Rep.Some(modifiedOn
+    def ? = (Rep.Some(id), Rep.Some(passengerNum), Rep.Some(modifiedOn
     )).shaped.<>(
-      { r => import r._; _1.map(_ => FlightPlan.tupled((_1.get, _2.get, _3.get, _4.get, _5.get))) },
+      { r => import r._; _1.map(_ => FlightPlan.tupled((_1.get, _2.get, _3.get))) },
       (_: Any) => throw new Exception("Inserting into ? projection not supported.")
     )
 
@@ -262,10 +262,6 @@ trait SqlAccountServiceSchema {
     val id: Rep[Long] = column[Long]("id", O.AutoInc, O.PrimaryKey)
     /** Database column passenger_num SqlType(int) */
     def passengerNum = column[Int]("passenger_num")
-    /** Database column start_time SqlType(OffsetDateTime), Default(None) */
-    val startTime: Rep[OffsetDateTime] = column[OffsetDateTime]("start_time")
-    /** Database column end_time SqlType(OffsetDateTime), Default(None) */
-    val endTime: Rep[OffsetDateTime] = column[OffsetDateTime]("end_time")
     /** Database column modified_on SqlType(OffsetDateTime) */
     val modifiedOn: Rep[OffsetDateTime] = column[OffsetDateTime]("modified_on")
   }

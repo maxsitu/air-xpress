@@ -7,7 +7,7 @@ import com.jc.api.common.Utils
 import com.jc.api.common.crypto.{PasswordHashing, Salt}
 import com.jc.api.email.application.{EmailService, EmailTemplatingEngine}
 import com.jc.api.endpoint.user.{UserId, UserRoleId}
-import com.jc.api.model.{BasicUserData, FullUserData, User, UserStatus}
+import com.jc.api.model._
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -71,6 +71,10 @@ class UserService(
 
   def activateUser(userId: UserId): Future[Unit] = {
     userDao.changeUserStatus(userId, UserStatus.STATUS_ACTIVE)
+  }
+
+  def addUserRoles(userId: UserId, roles: Seq[UserRole]): Future[Unit] = {
+    userDao.addUserRoles(userId, roles)
   }
   /**
     * Compare password with encrypted password stored in DB. Returning basic info of user only

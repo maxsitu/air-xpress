@@ -28,6 +28,8 @@ class UserDao(protected val database: SqlDatabase)(implicit val ec: ExecutionCon
     )
   }
 
+  def addUserRoles(userId: UserId, roles: Seq[UserRole]): Future[Unit] = db.run(userRoleMappings ++= (roles.map(role => UserRoleMapping(userId, role.id)))).map(_ => ())
+
   def changeUserStatus(userId: UserId, userStatus: UserStatus): Future[Unit] = db.run(
     users.filter(_.id === userId).map(_.userStatusId).update(userStatus.id).map(_ => ())
   )

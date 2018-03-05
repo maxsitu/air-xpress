@@ -7,30 +7,37 @@
   -webkit-flex-direction: row;
   flex-direction: row;
   -webkit-justify-content: space-between;
-  justify-content: space-between; }
-  .ax-location-preview-fields {
+  justify-content: space-between;
+
+  &-fields {
     color: white;
     font-size: large;
     background-color: powderblue;
     display: -webkit-flex;
     display: -ms-flex;
     display: flex;
-    -webkit-flex: 3;
-    -ms-flex: 3;
-    flex: 3;
-    -webkit-align-items: center;
-    align-items: center; }
-    .ax-location-preview-fields:hover {
-      background-color: dodgerblue; }
-    .ax-location-preview-fields span {
+
+    &:hover {
+      background-color: dodgerblue;
+    }
+
+    span {
       -webkit-flex: 1;
       -ms-flex: 1;
       flex: 1;
-      text-align: center; }
-  .ax-location-preview-map {
+      text-align: center;
+    }
+    -webkit-flex: 3;
+    -ms-flex: 3;
+    flex: 3;
+
+    -webkit-align-items: center;
+    align-items: center;
+  }
+
+  &-map {
     flex: 1;
     -webkit-flex: 1;
-    -ms-flex: 1; }
-
-.ax-flight-step__error-msg {
-  color: red; }
+    -ms-flex: 1;
+  }
+}

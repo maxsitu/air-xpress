@@ -66,6 +66,36 @@ trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
           }
         }
       } ~
+      post {
+        pathPrefix("addRoleAdmin") {
+          path("userId" / JavaUUID) { userId =>
+            onSuccess(userService.addUserRoles(userId, Seq(UserRole.ROLE_ADMIN))) {
+              completeOk
+            }
+          }
+        } ~
+          pathPrefix("addRoleConsumer") {
+            path("userId" / JavaUUID) { userId =>
+              onSuccess(userService.addUserRoles(userId, Seq(UserRole.ROLE_CONSUMER))) {
+                completeOk
+              }
+            }
+          } ~
+          pathPrefix("addRoleProvider") {
+            path("userId" / JavaUUID) { userId =>
+              onSuccess(userService.addUserRoles(userId, Seq(UserRole.ROLE_PROVIDER))) {
+                completeOk
+              }
+            }
+          } ~
+          pathPrefix("addRolePilot") {
+            path("userId" / JavaUUID) { userId =>
+              onSuccess(userService.addUserRoles(userId, Seq(UserRole.ROLE_PILOT))) {
+                completeOk
+              }
+            }
+          }
+      } ~
       pathEnd {
         post {
           entity(as[LoginInput]) { in =>
@@ -95,27 +125,27 @@ trait UsersRoutes extends RoutesSupport with StrictLogging with SessionSupport {
             }
           }
         } ~
-          get {
-            userFromSession { user =>
-              complete(user)
-            }
-          } ~
-          patch {
-            userIdFromSession { userId =>
-              entity(as[PatchUserInput]) { in =>
-                val updateAction = (in.login, in.email) match {
-                  case (Some(login), _) => userService.changeLogin(userId, login)
-                  case (_, Some(email)) => userService.changeEmail(userId, email)
-                  case _ => Future.successful(Left("You have to provide new login or email"))
-                }
+        get {
+          userFromSession { user =>
+            complete(user)
+          }
+        } ~
+        patch {
+          userIdFromSession { userId =>
+            entity(as[PatchUserInput]) { in =>
+              val updateAction = (in.login, in.email) match {
+                case (Some(login), _) => userService.changeLogin(userId, login)
+                case (_, Some(email)) => userService.changeEmail(userId, email)
+                case _ => Future.successful(Left("You have to provide new login or email"))
+              }
 
-                onSuccess(updateAction) {
-                  case Left(msg) => complete(StatusCodes.Conflict, msg)
-                  case Right(_) => completeOk
-                }
+              onSuccess(updateAction) {
+                case Left(msg) => complete(StatusCodes.Conflict, msg)
+                case Right(_) => completeOk
               }
             }
           }
+        }
       }
   }
 }

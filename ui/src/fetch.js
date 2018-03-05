@@ -146,6 +146,15 @@ class PlaneFetch extends SameOriginFetch {
   }
 }
 
+class FlightPlanFetch extends SameOriginFetch {
+  async create(passengerNum, flightSteps) {
+    return await this.post('/flightPlan', null, {
+      passengerNum,
+      flightSteps
+    })
+  }
+}
+
 const Auth = new AuthFetch();
 const Location = new LocationFetch();
 const Plane = new PlaneFetch();

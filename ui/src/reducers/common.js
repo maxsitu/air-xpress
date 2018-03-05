@@ -40,9 +40,6 @@ export default (state = defaultState, action) => {
       return { ...state, redirectTo: null };
     case LOGOUT:
       return { ...state, redirectTo: '/', token: null, currentUser: null };
-    // case ARTICLE_SUBMITTED:
-    //   const redirectUrl = `/article/${action.payload.article.slug}`;
-    //   return { ...state, redirectTo: redirectUrl };
     case LOCATION_SUBMITTED:
       return { ...state, redirectTo: `/`};
     case LOCATION_PREVIEW_CLICKED:
@@ -61,15 +58,9 @@ export default (state = defaultState, action) => {
         token: action.error ? null : _cookies.get('_jt_ui_sessiondata'),
         currentUser: action.error ? null : action.payload.login
       };
-    // case DELETE_ARTICLE:
-    //   return { ...state, redirectTo: '/' };
-    // case ARTICLE_PAGE_UNLOADED:
-    // case EDITOR_PAGE_UNLOADED:
     case LOCATION_EDITOR_PAGE_LOADED:
     case PLANE_EDITOR_PAGE_LOADED:
     case PROFILE_PAGE_UNLOADED:
-    // case PROFILE_FAVORITES_PAGE_UNLOADED:
-    // case SETTINGS_PAGE_UNLOADED:
     case LOGIN_PAGE_UNLOADED:
     case REGISTER_PAGE_UNLOADED:
       return { ...state, viewChangeCounter: state.viewChangeCounter + 1 };

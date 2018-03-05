@@ -21,8 +21,6 @@ class FlightDao (protected val database: SqlDatabase)(implicit val ec: Execution
     db.run(flightPlans returning flightPlans.map(_.id) +=
       FlightPlan(0,
         passengerNum,
-        startTime,
-        endTime,
         Instant.now().atOffset(ZoneOffset.UTC))
     )
 
@@ -86,11 +84,11 @@ trait SqlFlightSchema {
   protected class FlightPlans(tag: Tag) extends Table[FlightPlan](tag, "FLIGHT_PLANS") {
     def id          = column[FlightPlanId]("id", O.PrimaryKey, O.AutoInc)
     def passengerNum = column[Int]("passenger_num")
-    def startTime   = column[OffsetDateTime]("start_time")
-    def endTime     = column[OffsetDateTime]("end_time")
+//    def startTime   = column[OffsetDateTime]("start_time")
+//    def endTime     = column[OffsetDateTime]("end_time")
     def modifiedOn  = column[OffsetDateTime]("modified_on")
 
-    def * = (id, passengerNum, startTime, endTime, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
+    def * = (id, passengerNum, modifiedOn) <> (FlightPlan.tupled, FlightPlan.unapply)
   }
 
   protected class FlightSteps(tag: Tag) extends Table[FlightStep](tag, "FLIGHT_STEPS") {

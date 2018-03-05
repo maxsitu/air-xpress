@@ -4,22 +4,19 @@ import fetch from '../fetch';
 import React from 'react';
 import { connect } from 'react-redux';
 import { APP_LOAD, REDIRECT } from '../constants/actionTypes';
-import { Route, Switch } from 'react-router-dom';
-// import Article from '../components/Article';
-// import Editor from '../components/Editor';
 import Home from '../components/Home';
 import Login from '../components/Login';
-// import Profile from '../components/Profile';
-// import ProfileFavorites from '../components/ProfileFavorites';
 import Register from '../components/Register';
 import Settings from '../components/Settings';
-import { store } from '../store';
-import { push } from 'react-router-redux';
-import Cookies from 'universal-cookie';
 import LocationList from "./LocationList";
 import LocationEditor from "./LocationEditor";
 import PlaneEditor from "./PlaneEditor";
 import FlightPlan from "./FlightPlan";
+import PilotPreferenceEditor from "./PilotPreferenceEditor";
+import { store } from '../store';
+import { Route, Switch } from 'react-router-dom';
+import { push } from 'react-router-redux';
+import Cookies from 'universal-cookie';
 
 const mapStateToProps = state => {
   return {
@@ -76,6 +73,7 @@ class App extends React.Component {
             <Route path="/locationEditor" component={LocationEditor}/>
             <Route path="/planeEditor" component={PlaneEditor}/>
             <Route path="/flightPlan" component={FlightPlan}/>
+            <Route path="/pilotPreference" component={PilotPreferenceEditor}/>
 
             {/*<Route path="/@:username/favorites" component={ProfileFavorites} />*/}
             {/*<Route path="/@:username" component={Profile} />*/}

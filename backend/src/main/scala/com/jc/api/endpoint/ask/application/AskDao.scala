@@ -33,7 +33,7 @@ class AskDao (protected val database: SqlDatabase)(implicit val ec: ExecutionCon
       (
         for {
           planId <- flightPlans returning flightPlans.map(_.id) += FlightPlan(
-            0, plan.passengerNum, plan.startTime, plan.endTime, Instant.now().atOffset(ZoneOffset.UTC)
+            0, plan.passengerNum, Instant.now().atOffset(ZoneOffset.UTC)
           )
           stepIdList <- flightSteps returning flightSteps.map(_.id) ++= (plan.flightSteps map (step => FlightStep(
             0, planId, step.fromLocationId, step.toLocationId, step.fromTime, step.toTime

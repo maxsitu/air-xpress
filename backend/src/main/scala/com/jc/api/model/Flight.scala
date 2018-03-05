@@ -18,8 +18,6 @@ case class FlightStep(
 case class FlightPlan(
   id            : FlightPlanId,
   passengerNum  : Int,
-  startTime     : OffsetDateTime,
-  endTime       : OffsetDateTime,
   modifiedOn    : OffsetDateTime
 )
 

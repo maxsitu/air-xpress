@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import moment from 'moment';
 import omit from 'lodash/omit';
-import 'react-dates/initialize';
-import 'react-dates/lib/css/_datepicker.css';
-
 import {DateRangePicker, DateRangePickerPhrases, DateRangePickerShape, isInclusivelyAfterDay} from 'react-dates';
 
 import { START_DATE, END_DATE, HORIZONTAL_ORIENTATION, ANCHOR_LEFT } from './constants';
@@ -132,6 +129,7 @@ class DateRangePickerWrapper extends React.Component {
     return (
       <div>
         <DateRangePicker
+          ref={ref => {this.dateRangePicker = ref;}}
           {...props}
           onDatesChange={this.onDatesChange}
           onFocusChange={this.onFocusChange}

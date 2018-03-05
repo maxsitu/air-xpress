@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import com.jc.api.common.api.RoutesRequestWrapper
 import com.jc.api.endpoint.ask.api.AsksRoutes
 import com.jc.api.endpoint.bid.api.BidsRoutes
+import com.jc.api.endpoint.flight.api.FlightRoutes
 import com.jc.api.endpoint.location.api.LocationRoutes
 import com.jc.api.endpoint.oauth2.api.OAuthRoutes
 import com.jc.api.endpoint.order.api.OrdersRoutes
@@ -21,7 +22,8 @@ trait Routes extends RoutesRequestWrapper
   with BidsRoutes
   with VersionRoutes
   with AsksRoutes
-  with OAuthRoutes {
+  with OAuthRoutes
+  with FlightRoutes{
 
   def system: ActorSystem
   def config: ServerConfig
@@ -35,7 +37,8 @@ trait Routes extends RoutesRequestWrapper
         bidsRoutes ~
         providerAsksRoutes ~
         versionRoutes ~
-        oauthRoutes
+        oauthRoutes ~
+        flightROutes
     } ~
       getFromResourceDirectory("webapp") ~
       new SwaggerDocService(config.serverHost, config.serverPort, system).routes ~

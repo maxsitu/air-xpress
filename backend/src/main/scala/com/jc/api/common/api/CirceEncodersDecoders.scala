@@ -49,10 +49,8 @@ trait CirceEncodersDecoders {
     override def apply(c: HCursor): Result[BasicFlightPlan] =
     for {
       passengerNum <- c.get[Int]("passengerNum")
-      startTime    <- c.get[OffsetDateTime]("startTime")
-      endTime      <- c.get[OffsetDateTime]("endTime")
       flightSteps  <- c.get[List[BasicFlightStep]]("flightSteps")
-    } yield BasicFlightPlan(passengerNum, startTime, endTime, flightSteps)
+    } yield BasicFlightPlan(passengerNum, flightSteps)
   }
 
   implicit object BasicProviderAskDataDecoder extends Decoder[BasicProviderAskData] {
